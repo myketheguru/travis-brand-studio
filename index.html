@@ -28,7 +28,6 @@
     text-rendering: geometricPrecision;
     min-height: 100vh;
   }
-
   * { box-sizing: border-box; }
   input, button, select { font-family: inherit; }
 
@@ -45,7 +44,6 @@
     .page { grid-template-columns: 1fr; }
     .inspector { order: 2; }
   }
-
   .col-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
   .header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
@@ -64,7 +62,6 @@
     margin-left: auto;
   }
 
-  /* Presets */
   .presets {
     display: flex;
     gap: 10px;
@@ -108,7 +105,6 @@
     color: var(--text-muted);
   }
 
-  /* Preview */
   .preview-wrap {
     background: var(--elevated);
     border: 1px solid var(--border-ambient);
@@ -140,6 +136,30 @@
   .preview-frame.light { background: #f5f0e5; }
   .preview-frame canvas { display: block; max-width: 100%; max-height: 100%; cursor: pointer; }
 
+  /* Fullscreen sizing — the frame goes to viewport, canvas fills it. */
+  .preview-frame:fullscreen,
+  .preview-frame:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    border-radius: 0;
+    padding: 0;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .preview-frame.light:fullscreen,
+  .preview-frame.light:-webkit-full-screen { background: #f5f0e5; }
+  .preview-frame:fullscreen canvas,
+  .preview-frame:-webkit-full-screen canvas {
+    max-width: 100vw;
+    max-height: 100vh;
+    width: auto;
+    height: auto;
+  }
+
   .sel-box {
     position: absolute;
     border: 1.5px dashed rgba(189, 158, 255, 0.9);
@@ -164,7 +184,6 @@
     border: 1px solid rgba(189, 158, 255, 0.32);
   }
 
-  /* Play overlay — hover only. */
   .play-overlay {
     position: absolute;
     inset: 0;
@@ -201,7 +220,58 @@
   }
   .play-overlay button svg { width: 26px; height: 26px; }
 
-  /* Transport */
+  /* Fullscreen button — bottom-right corner of preview */
+  .fs-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(15, 12, 30, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 180ms var(--curve-snap), background 180ms var(--curve-hero);
+    pointer-events: auto;
+    z-index: 4;
+    all: unset;
+    box-sizing: border-box;
+  }
+  .fs-btn { all: unset; }
+  .fs-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: rgba(15, 12, 30, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 180ms var(--curve-snap), background 180ms var(--curve-hero);
+    z-index: 4;
+    box-sizing: border-box;
+  }
+  .preview-frame:hover .fs-btn { opacity: 1; }
+  .preview-frame:fullscreen .fs-btn,
+  .preview-frame:-webkit-full-screen .fs-btn { opacity: 1; }
+  .fs-btn:hover { background: rgba(30, 22, 60, 0.82); border-color: rgba(189, 158, 255, 0.42); }
+  .fs-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; }
+
   .transport { display: flex; align-items: center; gap: 12px; padding: 0 4px; }
   .transport .play-btn {
     all: unset;
@@ -215,10 +285,7 @@
     flex-shrink: 0;
     transition: all 180ms var(--curve-hero);
   }
-  .transport .play-btn:hover {
-    background: rgba(189, 158, 255, 0.22);
-    border-color: rgba(189, 158, 255, 0.55);
-  }
+  .transport .play-btn:hover { background: rgba(189, 158, 255, 0.22); border-color: rgba(189, 158, 255, 0.55); }
   .transport .play-btn svg { width: 12px; height: 12px; }
   .scrubber-wrap {
     flex: 1;
@@ -278,13 +345,13 @@
   }
   .preview-meta .value { color: var(--text-secondary); margin-left: 4px; }
 
-  /* Globals */
   .globals {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
   }
-  @media (max-width: 640px) { .globals { grid-template-columns: 1fr; } }
+  @media (max-width: 900px) { .globals { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 480px) { .globals { grid-template-columns: 1fr; } }
   .card {
     background: var(--elevated);
     border: 1px solid var(--border-ambient);
@@ -329,6 +396,11 @@
     color: var(--lav);
     box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.30);
   }
+  .segmented button.disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+  }
+  .segmented button.disabled:hover { background: transparent; color: var(--text-secondary); }
   .segmented.bronze button.on {
     background: var(--bronze-soft);
     color: var(--bronze);
@@ -369,6 +441,7 @@
     background: rgba(189, 158, 255, 0.90);
     box-shadow: 0 0 28px rgba(189, 158, 255, 0.42);
   }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.75; }
 
   .status {
@@ -433,10 +506,12 @@
     letter-spacing: 0.10em;
     text-transform: none;
   }
-  .divider {
-    height: 1px;
-    background: var(--border-ambient);
-    margin: 2px 0;
+  .divider { height: 1px; background: var(--border-ambient); margin: 2px 0; }
+  .empty-inspector {
+    color: var(--text-muted);
+    font-size: 12.5px;
+    padding: 8px 0;
+    line-height: 1.5;
   }
 
   .layer-list { display: flex; flex-direction: column; gap: 4px; }
@@ -457,11 +532,7 @@
     background: rgba(189, 158, 255, 0.10);
     border-color: rgba(189, 158, 255, 0.32);
   }
-  .layer .kind-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--text-muted);
-    flex-shrink: 0;
-  }
+  .layer .kind-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
   .layer[data-kind="orb"] .kind-dot { background: linear-gradient(135deg, var(--lav), var(--bronze)); }
   .layer[data-kind="wordmark"] .kind-dot { background: var(--text-primary); }
   .layer[data-kind="tagline"] .kind-dot { background: var(--text-secondary); }
@@ -516,11 +587,7 @@
   }
   .select:hover, .num-input:hover { border-color: rgba(255, 255, 255, 0.16); }
   .select:focus, .num-input:focus { border-color: rgba(189, 158, 255, 0.42); }
-  .num-input {
-    cursor: text;
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-  }
+  .num-input { cursor: text; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
   .textfield {
@@ -583,10 +650,7 @@
   .color-row button:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); }
 
   .slider-row { display: flex; align-items: center; gap: 8px; }
-  .slider-row input[type="range"] {
-    flex: 1;
-    accent-color: var(--lav);
-  }
+  .slider-row input[type="range"] { flex: 1; accent-color: var(--lav); }
   .slider-row .sv {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -594,6 +658,103 @@
     min-width: 44px;
     text-align: right;
     font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 4, 8, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--curve-snap);
+  }
+  .modal-backdrop.on { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: var(--elevated);
+    border: 1px solid var(--border-ambient);
+    border-radius: 16px;
+    padding: 24px;
+    width: min(460px, 100%);
+    max-width: 100%;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+      0 30px 60px -20px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transform: translateY(8px) scale(0.98);
+    transition: transform 220ms var(--curve-hero);
+  }
+  .modal-backdrop.on .modal { transform: translateY(0) scale(1); }
+  .modal h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.005em;
+  }
+  .modal .sub {
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin-top: -6px;
+  }
+  .modal .fname-row {
+    display: flex;
+    align-items: stretch;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--border-ambient);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .modal .fname-row input {
+    all: unset;
+    flex: 1;
+    padding: 10px 12px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--text-primary);
+    min-width: 0;
+  }
+  .modal .fname-row .ext {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.10em;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.28);
+    border-left: 1px solid var(--border-ambient);
+    text-transform: uppercase;
+  }
+  .modal .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal .warn {
+    background: rgba(210, 155, 100, 0.08);
+    border: 1px solid rgba(210, 155, 100, 0.28);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: rgba(230, 200, 160, 0.90);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .modal .warn code {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: rgb(230, 200, 160);
+    letter-spacing: 0.02em;
+    word-break: break-all;
   }
 </style>
 
@@ -607,9 +768,9 @@
         <h1 class="title">Intro / outro animation</h1>
       </div>
       <div class="subtitle">
-        Click any element on the canvas to select it. Change its effect,
-        timing, or style on the right. Pick a preset to swap the whole
-        recipe at once — everything rescales to fit the selected duration.
+        Click any element on the canvas to select it. Click empty
+        space to deselect. Change effects, timing, or style on the
+        right. Presets swap the whole recipe.
       </div>
     </div>
 
@@ -625,6 +786,11 @@
               <svg viewBox="0 0 24 24" id="overlayIcon"><path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/></svg>
             </button>
           </div>
+          <button class="fs-btn" id="btnFs" aria-label="Fullscreen">
+            <svg viewBox="0 0 24 24" id="fsIcon">
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+            </svg>
+          </button>
         </div>
       </div>
       <div class="transport">
@@ -632,9 +798,7 @@
           <svg viewBox="0 0 24 24" id="transportIcon"><path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/></svg>
         </button>
         <div class="scrubber-wrap" id="scrubber">
-          <div class="scrubber-track">
-            <div class="scrubber-fill" id="scrubberFill"></div>
-          </div>
+          <div class="scrubber-track"><div class="scrubber-fill" id="scrubberFill"></div></div>
           <div class="scrubber-thumb" id="scrubberThumb"></div>
         </div>
         <div class="time" id="timeLabel">0.0s / 5.0s</div>
@@ -643,6 +807,7 @@
         <div>theme<span class="value" id="metaTheme">dark</span></div>
         <div>orientation<span class="value" id="metaAspect">16 : 9</span></div>
         <div>native<span class="value" id="metaSize">1920 × 1080</span></div>
+        <div>format<span class="value" id="metaFormat">webm</span></div>
       </div>
     </div>
 
@@ -671,6 +836,13 @@
           <button data-dur="12">12 s</button>
         </div>
       </div>
+      <div class="card">
+        <div class="label">Format</div>
+        <div class="segmented" id="segFormat">
+          <button data-fmt="webm" class="on">WebM</button>
+          <button data-fmt="mp4">MP4</button>
+        </div>
+      </div>
     </div>
 
     <div class="actions">
@@ -693,20 +865,18 @@
 
   <aside class="inspector">
     <div class="insp-section">
-      <div class="insp-h"><span>Layers</span><span class="hint">click to select</span></div>
+      <div class="insp-h"><span>Layers</span><span class="hint">click to select · click canvas to deselect</span></div>
       <div class="layer-list" id="layerList"></div>
     </div>
 
     <div class="divider"></div>
 
-    <div class="insp-section">
+    <div id="elementPane" class="insp-section" style="display:none;">
       <div class="insp-h"><span>Element</span><span class="hint" id="inspLayerLabel"></span></div>
 
       <div class="field" id="textFieldWrap">
         <div class="flabel">Text</div>
-        <div class="textfield">
-          <input id="elText" type="text" />
-        </div>
+        <div class="textfield"><input id="elText" type="text" /></div>
       </div>
 
       <div class="field">
@@ -726,9 +896,8 @@
       </div>
     </div>
 
-    <div class="divider"></div>
-
-    <div class="insp-section" id="styleSection">
+    <div id="stylePane" class="insp-section" style="display:none;">
+      <div class="divider"></div>
       <div class="insp-h"><span>Style</span><span class="hint">overrides theme</span></div>
 
       <div class="field" id="colorFieldWrap">
@@ -742,9 +911,7 @@
 
       <div class="field">
         <div class="flabel">Size · <span id="styleSizeVal">1.00x</span></div>
-        <div class="slider-row">
-          <input id="styleSize" type="range" min="0.4" max="2.0" step="0.02" value="1" />
-        </div>
+        <div class="slider-row"><input id="styleSize" type="range" min="0.4" max="2.0" step="0.02" value="1" /></div>
       </div>
 
       <div class="field-row">
@@ -760,25 +927,51 @@
 
       <div class="field" id="trackingWrap">
         <div class="flabel">Tracking · <span id="styleTrackVal">1.00x</span></div>
-        <div class="slider-row">
-          <input id="styleTrack" type="range" min="0" max="2.5" step="0.02" value="1" />
-        </div>
+        <div class="slider-row"><input id="styleTrack" type="range" min="0" max="2.5" step="0.02" value="1" /></div>
       </div>
 
       <div class="field" id="glowWrap">
         <div class="flabel">Glow · <span id="styleGlowVal">1.00x</span></div>
-        <div class="slider-row">
-          <input id="styleGlow" type="range" min="0" max="2.5" step="0.02" value="1" />
-        </div>
+        <div class="slider-row"><input id="styleGlow" type="range" min="0" max="2.5" step="0.02" value="1" /></div>
       </div>
+    </div>
+
+    <div id="noSelPane" class="empty-inspector">
+      Nothing selected. Click an element on the canvas or pick one
+      from the layer list above.
     </div>
   </aside>
 
 </div>
 
+<!-- Save / rename modal -->
+<div class="modal-backdrop" id="saveModal">
+  <div class="modal">
+    <h3>Save your recording</h3>
+    <div class="sub">Rename the file if you like — it downloads to your usual Downloads folder.</div>
+    <div id="mp4Warn" class="warn" style="display:none;">
+      Your browser can't record MP4 directly. Save the WebM instead
+      and convert with one command:
+      <br><br>
+      <code id="ffmpegCmd">ffmpeg -i in.webm -c:v libx264 -pix_fmt yuv420p out.mp4</code>
+    </div>
+    <div class="fname-row">
+      <input id="fnameInput" type="text" spellcheck="false" />
+      <div class="ext" id="fnameExt">.WEBM</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="cancelSave">Cancel</button>
+      <button class="btn primary" id="confirmSave">
+        <svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
   // ================================================================
-  // Travis animation studio — motion-graphics mini-editor.
+  // Travis animation studio.
   // ================================================================
 
   const THEMES = {
@@ -858,26 +1051,13 @@
   const TEXT_EFFECTS = ['none', 'fade-up', 'fade-in', 'slide-left', 'slide-right', 'scale-in', 'typewriter', 'split-in', 'split-up'];
   const ORB_EFFECTS  = ['none', 'rise-breath', 'glow-in', 'pulse', 'fade-in', 'scale-in'];
 
-  // Default overrides shape.
-  function defaultOverrides(kind) {
-    return {
-      color: null,   // null = use theme color
-      sizeScale: 1,
-      xOffsetPct: 0, // % of stage width
-      yOffsetPct: 0, // % of stage height
-      tracking: 1,   // wordmark: letter-spacing multiplier
-      glow: 1,       // orb: outer glow multiplier
-    };
+  function defaultOverrides() {
+    return { color: null, sizeScale: 1, xOffsetPct: 0, yOffsetPct: 0, tracking: 1, glow: 1 };
   }
 
-  // Presets — timings are relative to the preset's natural length,
-  // which is computed at apply-time. Every apply rescales to fit
-  // state.duration so nothing runs past the end.
   const PRESETS = [
     {
-      id: 'signature',
-      name: 'Signature',
-      kicker: 'Default',
+      id: 'signature', name: 'Signature', kicker: 'Default',
       elements: {
         orb:      { effect: 'rise-breath', start: 0.4, duration: 1.2, enabled: true },
         wordmark: { effect: 'fade-up',     start: 1.3, duration: 1.1, enabled: true, text: 'TRAVIS' },
@@ -886,9 +1066,7 @@
       },
     },
     {
-      id: 'typewriter',
-      name: 'Typewriter',
-      kicker: 'Text-forward',
+      id: 'typewriter', name: 'Typewriter', kicker: 'Text-forward',
       elements: {
         orb:      { effect: 'rise-breath', start: 0.4, duration: 1.2, enabled: true },
         wordmark: { effect: 'split-up',    start: 1.3, duration: 1.4, enabled: true, text: 'TRAVIS' },
@@ -897,9 +1075,7 @@
       },
     },
     {
-      id: 'cascade',
-      name: 'Cascade',
-      kicker: 'Dimensional',
+      id: 'cascade', name: 'Cascade', kicker: 'Dimensional',
       elements: {
         orb:      { effect: 'glow-in',    start: 0.2, duration: 1.5, enabled: true },
         wordmark: { effect: 'split-in',   start: 1.5, duration: 1.3, enabled: true, text: 'TRAVIS' },
@@ -908,9 +1084,7 @@
       },
     },
     {
-      id: 'snap',
-      name: 'Snap',
-      kicker: 'Punchy',
+      id: 'snap', name: 'Snap', kicker: 'Punchy',
       elements: {
         orb:      { effect: 'pulse',    start: 0.1, duration: 1.0, enabled: true },
         wordmark: { effect: 'scale-in', start: 0.8, duration: 0.6, enabled: true, text: 'TRAVIS' },
@@ -919,9 +1093,7 @@
       },
     },
     {
-      id: 'broadcast',
-      name: 'Broadcast',
-      kicker: 'Cinematic',
+      id: 'broadcast', name: 'Broadcast', kicker: 'Cinematic',
       elements: {
         orb:      { effect: 'glow-in',    start: 0.4, duration: 2.0, enabled: true },
         wordmark: { effect: 'fade-up',    start: 2.0, duration: 1.6, enabled: true, text: 'TRAVIS' },
@@ -930,9 +1102,7 @@
       },
     },
     {
-      id: 'minimal',
-      name: 'Minimal',
-      kicker: 'Wordmark only',
+      id: 'minimal', name: 'Minimal', kicker: 'Wordmark only',
       elements: {
         orb:      { effect: 'none',     start: 0.0, duration: 0.1, enabled: false },
         wordmark: { effect: 'scale-in', start: 0.4, duration: 1.0, enabled: true, text: 'TRAVIS' },
@@ -944,6 +1114,26 @@
 
   const ELEMENT_KINDS = ['orb', 'wordmark', 'tagline', 'url'];
   const ELEMENT_NAMES = { orb: 'Orb', wordmark: 'Wordmark', tagline: 'Tagline', url: 'URL' };
+
+  // MP4 support detection ------------------------------------------
+  //
+  // Only Safari supports MP4 via MediaRecorder today. Everywhere else
+  // the codec test returns false, and we can't just silently swap to
+  // WebM because the user asked for MP4. We surface a copyable ffmpeg
+  // one-liner in the save modal so they can convert in one command.
+  const MP4_MIMES = [
+    'video/mp4;codecs=avc1.42E01E',
+    'video/mp4;codecs=avc1.4d0028',
+    'video/mp4;codecs=avc1',
+    'video/mp4',
+  ];
+  const WEBM_MIMES = [
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm',
+  ];
+  const supportedMimeFor = (fmt) => (fmt === 'mp4' ? MP4_MIMES : WEBM_MIMES).find(m => MediaRecorder.isTypeSupported(m));
+  const MP4_NATIVE_OK = !!supportedMimeFor('mp4');
 
   // State ----------------------------------------------------------
   const stage = document.getElementById('stage');
@@ -963,26 +1153,25 @@
     selected: 'wordmark',
     presetId: 'signature',
     elements: null,
+    format: 'webm',
     sizes: {
       '16:9': [1920, 1080],
       '9:16': [1080, 1920],
       '1:1':  [1080, 1080],
     },
     layerBoxes: {},
+    // record-related staging for the save modal
+    pendingBlob: null,
+    pendingExt: 'webm',
   };
 
   function currentTheme() { return THEMES[state.theme]; }
 
-  // Element normalization + rescaling ------------------------------
-  //
-  // Every element carries a `.style` object with overrides. Preset
-  // objects don't ship style so we add it on apply.
   function ensureStyle(el) {
     if (!el.style) el.style = defaultOverrides();
     else el.style = { ...defaultOverrides(), ...el.style };
     return el;
   }
-
   function naturalDurationOf(elements) {
     let m = 0;
     for (const k of ELEMENT_KINDS) {
@@ -992,42 +1181,47 @@
     }
     return m || 1;
   }
-
   function scaleTimings(elements, factor) {
     for (const k of ELEMENT_KINDS) {
       elements[k].start *= factor;
       elements[k].duration *= factor;
     }
   }
-
   function applyPreset(id) {
     const p = PRESETS.find(x => x.id === id);
     if (!p) return;
     state.presetId = id;
     const clone = JSON.parse(JSON.stringify(p.elements));
     for (const k of ELEMENT_KINDS) ensureStyle(clone[k]);
-    // Fit the preset's natural length to the currently-selected duration.
     const natural = naturalDurationOf(clone);
     const factor = state.duration / natural;
     scaleTimings(clone, factor);
     state.elements = clone;
     state.time = 0;
-    renderPresets();
-    renderLayers();
-    renderInspector();
-    drawFrame();
+    renderPresets(); renderLayers(); renderInspector(); drawFrame();
     setStatus('Preset · ' + p.name + ' — fit to ' + state.duration + 's', null);
   }
-
   function setDuration(d) {
     if (state.elements) {
-      // Rescale current timeline into the new duration so nothing
-      // gets cut off — including user-edited timings.
       const factor = d / state.duration;
       scaleTimings(state.elements, factor);
     }
     state.duration = d;
     if (state.time > d) state.time = d;
+    renderInspector(); drawFrame();
+  }
+
+  // Selection ------------------------------------------------------
+  function selectKind(kind) {
+    state.selected = kind;
+    renderLayers();
+    renderInspector();
+    drawFrame();
+  }
+  function deselect() {
+    if (!state.selected) return;
+    state.selected = null;
+    renderLayers();
     renderInspector();
     drawFrame();
   }
@@ -1047,15 +1241,13 @@
     g.addColorStop(0, T.lavBloomInner);
     g.addColorStop(0.55, T.lavBloomMid);
     g.addColorStop(1, 'rgba(124, 92, 255, 0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
 
     g = ctx.createRadialGradient(w * 0.92, h * 1.05, 0, w * 0.92, h * 1.05, Math.max(w, h) * 0.70);
     g.addColorStop(0, T.bronzeInner);
     g.addColorStop(0.55, T.bronzeMid);
     g.addColorStop(1, 'rgba(210, 155, 100, 0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
 
     ctx.save();
     const step = Math.round(Math.min(w, h) / 26);
@@ -1069,8 +1261,7 @@
     const edgeFade = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.22, w/2, h/2, Math.max(w,h)*0.55);
     edgeFade.addColorStop(0, 'rgba(0,0,0,0)');
     edgeFade.addColorStop(1, 'rgba(0,0,0,1)');
-    ctx.fillStyle = edgeFade;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = edgeFade; ctx.fillRect(0, 0, w, h);
     ctx.restore();
 
     ctx.globalAlpha = 1;
@@ -1084,7 +1275,6 @@
     const w = stage.width, h = stage.height;
     const shortSide = Math.min(w, h);
     const t = state.time;
-
     const localT = (t - el.start) / el.duration;
     if (localT < 0) return;
 
@@ -1128,7 +1318,6 @@
       cy = targetCY + (spec.dy ?? 0) * (shortSide / 1080);
       alpha = spec.alpha ?? 1;
     }
-
     if (orbR < 2) return;
 
     ctx.save();
@@ -1137,17 +1326,11 @@
     if (glowMul > 0) {
       const glowR = orbR * 3.2 * glowMul;
       const glow = ctx.createRadialGradient(cx, cy, orbR * 0.4, cx, cy, glowR);
-      const themeOverride = style.color;
-      // Outer glow color: default to theme, tint with overrides.color if set.
-      const oc = themeOverride
-        ? colorWithAlpha(themeOverride, 0.42)
-        : T.orbOuter1;
-      const om = themeOverride
-        ? colorWithAlpha(themeOverride, 0.16)
-        : T.orbOuter2;
+      const oc = style.color ? colorWithAlpha(style.color, 0.42) : T.orbOuter1;
+      const om = style.color ? colorWithAlpha(style.color, 0.16) : T.orbOuter2;
       glow.addColorStop(0, oc);
       glow.addColorStop(0.35, om);
-      glow.addColorStop(1, colorWithAlpha(themeOverride ?? '#7c5cff', 0));
+      glow.addColorStop(1, colorWithAlpha(style.color ?? '#7c5cff', 0));
       ctx.fillStyle = glow;
       ctx.fillRect(cx - glowR, cy - glowR, glowR * 2, glowR * 2);
 
@@ -1176,37 +1359,26 @@
     rim.addColorStop(0, 'rgba(255, 255, 255, 1)');
     rim.addColorStop(1, T.orbRimDark);
     ctx.fillStyle = rim;
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
     ctx.globalCompositeOperation = 'source-over';
 
     ctx.beginPath();
     ctx.fillStyle = T.orbHighlight;
     ctx.ellipse(cx - orbR * 0.32, cy - orbR * 0.42, orbR * 0.18, orbR * 0.12, -0.35, 0, Math.PI * 2);
     ctx.fill();
-
     ctx.restore();
 
     state.layerBoxes.orb = { x: cx - orbR, y: cy - orbR, w: orbR * 2, h: orbR * 2 };
   }
 
-  // Given a hex "#rrggbb" (or an rgb/rgba string), return an rgba
-  // string with the requested alpha. Used for orb glow tinting.
   function colorWithAlpha(color, alpha) {
     if (!color) return `rgba(0,0,0,${alpha})`;
     color = color.trim();
     if (color.startsWith('#')) {
       const hex = color.slice(1);
-      const bigint = parseInt(hex.length === 3
-        ? hex.split('').map(c => c + c).join('')
-        : hex, 16);
-      const r = (bigint >> 16) & 255;
-      const g = (bigint >>  8) & 255;
-      const b = (bigint) & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      const bigint = parseInt(hex.length === 3 ? hex.split('').map(c => c + c).join('') : hex, 16);
+      return `rgba(${(bigint >> 16) & 255}, ${(bigint >> 8) & 255}, ${bigint & 255}, ${alpha})`;
     }
-    // If it's already rgb/rgba, replace/append the alpha.
     const m = color.match(/rgba?\(([^)]+)\)/);
     if (m) {
       const parts = m[1].split(',').map(x => x.trim()).slice(0, 3);
@@ -1214,49 +1386,25 @@
     }
     return color;
   }
-
   function getVar(name) {
     return getComputedStyle(document.body).getPropertyValue(name).trim() || 'ui-sans-serif';
   }
 
-  // Text style base ------------------------------------------------
   function textStyleBase(kind) {
     const T = currentTheme();
     const shortSide = Math.min(stage.width, stage.height);
-    if (kind === 'wordmark') {
-      return {
-        y: stage.height * 0.60,
-        fontSize: shortSide * 0.075,
-        fontFamily: getVar('--font-mono'),
-        color: T.wordmark,
-        shadow: T.wordmarkShadow,
-        shadowBlur: shortSide * 0.075 * 0.18,
-        tracking: shortSide * 0.075 * 0.38,
-        uppercase: true,
-      };
-    }
-    if (kind === 'tagline') {
-      return {
-        y: stage.height * 0.72,
-        fontSize: shortSide * 0.022,
-        fontFamily: getVar('--font-sans'),
-        color: T.tagline,
-        shadow: null,
-        shadowBlur: 0,
-        tracking: 0,
-        uppercase: false,
-      };
-    }
-    // url
+    if (kind === 'wordmark') return {
+      y: stage.height * 0.60, fontSize: shortSide * 0.075, fontFamily: getVar('--font-mono'),
+      color: T.wordmark, shadow: T.wordmarkShadow, shadowBlur: shortSide * 0.075 * 0.18,
+      tracking: shortSide * 0.075 * 0.38, uppercase: true,
+    };
+    if (kind === 'tagline') return {
+      y: stage.height * 0.72, fontSize: shortSide * 0.022, fontFamily: getVar('--font-sans'),
+      color: T.tagline, shadow: null, shadowBlur: 0, tracking: 0, uppercase: false,
+    };
     return {
-      y: stage.height * 0.83,
-      fontSize: shortSide * 0.017,
-      fontFamily: getVar('--font-mono'),
-      color: T.url,
-      shadow: null,
-      shadowBlur: 0,
-      tracking: 0,
-      uppercase: false,
+      y: stage.height * 0.83, fontSize: shortSide * 0.017, fontFamily: getVar('--font-mono'),
+      color: T.url, shadow: null, shadowBlur: 0, tracking: 0, uppercase: false,
       urlUnder: T.urlUnder,
     };
   }
@@ -1274,8 +1422,6 @@
 
     const base = textStyleBase(kind);
     const s = el.style;
-
-    // Merged style with overrides applied.
     const style = {
       ...base,
       fontSize: base.fontSize * (s.sizeScale ?? 1),
@@ -1296,14 +1442,10 @@
     ctx.font = style.font;
     ctx.fillStyle = style.color;
     ctx.textBaseline = 'middle';
-    if (style.shadow) {
-      ctx.shadowColor = style.shadow;
-      ctx.shadowBlur = style.shadowBlur;
-    }
+    if (style.shadow) { ctx.shadowColor = style.shadow; ctx.shadowBlur = style.shadowBlur; }
 
     const styleDx = (s.xOffsetPct / 100) * stage.width;
     const styleDy = (s.yOffsetPct / 100) * stage.height;
-
     const cx = w / 2 + styleDx;
     const cy = style.y + styleDy + (spec.dy ?? 0) * (Math.min(w, stage.height) / 1080);
 
@@ -1312,7 +1454,6 @@
       ctx.scale(spec.scale, spec.scale);
       ctx.translate(-cx, -cy);
     }
-
     const dxPx = (spec.dx ?? 0) * (Math.min(w, stage.height) / 1080);
 
     if (kind === 'wordmark') {
@@ -1320,10 +1461,8 @@
       const tracking = style.tracking * (1 - (spec.splitTighten ?? 0));
       const widths = letters.map(L => ctx.measureText(L).width);
       const totalW = widths.reduce((a, b) => a + b, 0) + tracking * (letters.length - 1);
-
       let x = cx - totalW / 2 + dxPx;
       ctx.textAlign = 'left';
-
       if (spec.stagger !== undefined) {
         const perLetter = 1 / letters.length;
         const staggerT = spec.stagger;
@@ -1343,26 +1482,17 @@
           x += widths[i] + tracking;
         }
       }
-
-      state.layerBoxes.wordmark = {
-        x: cx - totalW / 2 + dxPx,
-        y: cy - style.fontSize * 0.55,
-        w: totalW,
-        h: style.fontSize * 1.1,
-      };
+      state.layerBoxes.wordmark = { x: cx - totalW / 2 + dxPx, y: cy - style.fontSize * 0.55, w: totalW, h: style.fontSize * 1.1 };
     } else {
       let display = raw;
       if (spec.slice !== undefined && spec.slice < 1) {
-        const n = Math.floor(raw.length * spec.slice);
-        display = raw.slice(0, n);
+        display = raw.slice(0, Math.floor(raw.length * spec.slice));
       }
       const metrics = ctx.measureText(display || ' ');
       const totalMetrics = ctx.measureText(raw);
       const textX = cx - totalMetrics.width / 2 + dxPx;
-
       ctx.textAlign = 'left';
       ctx.fillText(display, textX, cy);
-
       if (spec.cursor) {
         const cursorX = textX + metrics.width + style.fontSize * 0.08;
         const cursorH = style.fontSize * 0.9;
@@ -1374,7 +1504,6 @@
         ctx.fillRect(cursorX, cy - cursorH / 2, style.fontSize * 0.06, cursorH);
         ctx.restore();
       }
-
       if (kind === 'url' && style.urlUnder) {
         const shortSide = Math.min(w, stage.height);
         const ulW = shortSide * 0.020 * (s.sizeScale ?? 1);
@@ -1384,15 +1513,8 @@
         ctx.fillRect(cx - ulW / 2, cy + style.fontSize * 0.72, ulW, 1.5);
         ctx.restore();
       }
-
-      state.layerBoxes[kind] = {
-        x: cx - totalMetrics.width / 2 + dxPx,
-        y: cy - style.fontSize * 0.55,
-        w: totalMetrics.width,
-        h: style.fontSize * 1.1,
-      };
+      state.layerBoxes[kind] = { x: cx - totalMetrics.width / 2 + dxPx, y: cy - style.fontSize * 0.55, w: totalMetrics.width, h: style.fontSize * 1.1 };
     }
-
     ctx.restore();
   }
 
@@ -1410,8 +1532,8 @@
   function updateSelectionOutline() {
     const box = document.getElementById('selBox');
     const tag = document.getElementById('selBoxTag');
-    const b = state.layerBoxes[state.selected];
-    if (!b || !state.selected || state.playing || state.recording) {
+    const b = state.selected ? state.layerBoxes[state.selected] : null;
+    if (!b || state.playing || state.recording) {
       box.classList.remove('on');
       return;
     }
@@ -1479,11 +1601,25 @@
   let onLoopDone = () => setStatus('Ready.', null);
 
   // Recording ------------------------------------------------------
+  //
+  // Recording pipeline:
+  //  1. Pick codec based on state.format. If MP4 requested but the
+  //     browser can't encode it, we still record WebM and hand the
+  //     user the ffmpeg one-liner in the save modal.
+  //  2. Recording plays the animation from t=0 through duration.
+  //  3. On stop, we stash the blob + extension and open the save
+  //     modal. Confirming downloads to the user's chosen filename.
   async function record() {
     if (state.recording) return;
-    const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
-    const mimeType = candidates.find(m => MediaRecorder.isTypeSupported(m));
+
+    const wantMp4 = state.format === 'mp4';
+    const mimeType = wantMp4 && MP4_NATIVE_OK
+      ? supportedMimeFor('mp4')
+      : supportedMimeFor('webm');
     if (!mimeType) { setStatus('MediaRecorder unsupported.', null); return; }
+
+    const willBeMp4 = mimeType.startsWith('video/mp4');
+    const actualExt = willBeMp4 ? 'mp4' : 'webm';
 
     const stream = stage.captureStream(30);
     const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 10_000_000 });
@@ -1499,23 +1635,71 @@
     onLoopDone = () => setTimeout(() => recorder.stop(), 120);
 
     await donePromise;
-    const blob = new Blob(chunks, { type: 'video/webm' });
-    const filename = `travis-${state.presetId}-${state.theme}-${state.aspect.replace(':', 'x')}-${state.duration}s.webm`;
-    const url = URL.createObjectURL(blob);
+
+    const blob = new Blob(chunks, { type: willBeMp4 ? 'video/mp4' : 'video/webm' });
+    state.pendingBlob = blob;
+    state.pendingExt = actualExt;
+    state.recording = false;
+    setStatus('Recorded · ' + (blob.size / 1024 / 1024).toFixed(1) + ' MB', 'ok');
+    onLoopDone = () => setStatus('Ready.', null);
+
+    openSaveModal({
+      wantedMp4ButFellBack: wantMp4 && !willBeMp4,
+      defaultName: `travis-${state.presetId}-${state.theme}-${state.aspect.replace(':', 'x')}-${state.duration}s`,
+    });
+  }
+
+  function openSaveModal({ wantedMp4ButFellBack, defaultName }) {
+    const backdrop = document.getElementById('saveModal');
+    document.getElementById('fnameInput').value = defaultName;
+    document.getElementById('fnameExt').textContent = '.' + state.pendingExt.toUpperCase();
+    document.getElementById('mp4Warn').style.display = wantedMp4ButFellBack ? 'block' : 'none';
+    // Tailor the ffmpeg cmd to the file we produced.
+    document.getElementById('ffmpegCmd').textContent =
+      `ffmpeg -i ${defaultName}.webm -c:v libx264 -pix_fmt yuv420p ${defaultName}.mp4`;
+    backdrop.classList.add('on');
+    setTimeout(() => document.getElementById('fnameInput').focus(), 60);
+  }
+  function closeSaveModal() {
+    document.getElementById('saveModal').classList.remove('on');
+  }
+
+  function commitDownload() {
+    if (!state.pendingBlob) { closeSaveModal(); return; }
+    let name = (document.getElementById('fnameInput').value || 'travis-intro').trim();
+    // Strip any duplicate extension the user typed.
+    name = name.replace(/\.(webm|mp4)$/i, '');
+    const filename = `${name}.${state.pendingExt}`;
+    const url = URL.createObjectURL(state.pendingBlob);
     const a = document.createElement('a');
     a.href = url; a.download = filename; a.rel = 'noopener';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    state.recording = false;
+    state.pendingBlob = null;
+    closeSaveModal();
     setStatus('Saved · ' + filename, 'ok');
-    onLoopDone = () => setStatus('Ready.', null);
   }
 
-  // Aspect / theme -------------------------------------------------
+  // Aspect / theme / format ---------------------------------------
   function setAspect(aspect) {
     state.aspect = aspect;
     const [w, h] = state.sizes[aspect];
     stage.width = w; stage.height = h;
+    layoutStageForNormal();
+    document.getElementById('metaAspect').textContent = aspect.replace(':', ' : ');
+    document.getElementById('metaSize').textContent = w + ' × ' + h;
+    drawFrame();
+  }
+  function layoutStageForNormal() {
+    if (document.fullscreenElement === frame || document.webkitFullscreenElement === frame) {
+      // Let CSS fullscreen rules take over — clear inline styles.
+      frame.style.width = '';
+      frame.style.height = '';
+      stage.style.width = '';
+      stage.style.height = '';
+      return;
+    }
+    const [w, h] = state.sizes[state.aspect];
     const maxW = Math.min(window.innerWidth - 400, 1100);
     const maxH = window.innerHeight * 0.55;
     let cssW = maxW;
@@ -1525,15 +1709,19 @@
     frame.style.height = cssH + 'px';
     stage.style.width = cssW + 'px';
     stage.style.height = cssH + 'px';
-    document.getElementById('metaAspect').textContent = aspect.replace(':', ' : ');
-    document.getElementById('metaSize').textContent = w + ' × ' + h;
-    drawFrame();
   }
   function setTheme(theme) {
     state.theme = theme;
     document.getElementById('metaTheme').textContent = theme;
     frame.classList.toggle('light', theme === 'light');
     drawFrame();
+  }
+  function setFormat(fmt) {
+    state.format = fmt;
+    document.getElementById('metaFormat').textContent = fmt;
+    if (fmt === 'mp4' && !MP4_NATIVE_OK) {
+      setStatus('MP4 needs Safari · we\'ll ship WebM + the convert command', null);
+    }
   }
   function setStatus(text, kind) {
     const el = document.getElementById('status');
@@ -1582,22 +1770,25 @@
           renderLayers(); renderInspector(); drawFrame();
           return;
         }
-        state.selected = kind;
-        renderLayers(); renderInspector(); drawFrame();
+        selectKind(kind);
       });
       list.appendChild(row);
     });
   }
 
-  // Inspector -----------------------------------------------------
-  //
-  // Color picker: HTML color inputs can't hold a "null" state, so we
-  // track "using theme" separately. If `style.color` is null, we show
-  // the theme's current color as the swatch value but a "Reset"
-  // button reads as inert (no-op). If overridden, "Reset" clears back
-  // to null.
+  // Inspector ------------------------------------------------------
   function renderInspector() {
     const kind = state.selected;
+    if (!kind) {
+      document.getElementById('elementPane').style.display = 'none';
+      document.getElementById('stylePane').style.display = 'none';
+      document.getElementById('noSelPane').style.display = 'block';
+      return;
+    }
+    document.getElementById('elementPane').style.display = 'flex';
+    document.getElementById('stylePane').style.display = 'flex';
+    document.getElementById('noSelPane').style.display = 'none';
+
     const el = state.elements[kind];
     const s = el.style;
     document.getElementById('inspLayerLabel').textContent = ELEMENT_NAMES[kind];
@@ -1620,29 +1811,18 @@
     document.getElementById('startInput').value = el.start.toFixed(2);
     document.getElementById('durInput').value = el.duration.toFixed(2);
 
-    // Style controls
-    // Color
-    const themeColor = kind === 'orb'
-      ? '#bd9eff' // representative orb accent
-      : rgbaToHex(textStyleBase(kind).color);
+    const themeColor = kind === 'orb' ? '#bd9eff' : rgbaToHex(textStyleBase(kind).color);
     const activeColor = s.color || themeColor;
     document.getElementById('styleColor').value = normalizeHex(activeColor);
     document.getElementById('styleColorHex').textContent = normalizeHex(activeColor).toUpperCase() + (s.color ? '' : ' · theme');
 
-    // Size
     document.getElementById('styleSize').value = s.sizeScale;
     document.getElementById('styleSizeVal').textContent = s.sizeScale.toFixed(2) + 'x';
-
-    // Position
     document.getElementById('styleX').value = s.xOffsetPct;
     document.getElementById('styleY').value = s.yOffsetPct;
-
-    // Tracking (wordmark only)
     document.getElementById('trackingWrap').style.display = (kind === 'wordmark') ? 'flex' : 'none';
     document.getElementById('styleTrack').value = s.tracking;
     document.getElementById('styleTrackVal').textContent = s.tracking.toFixed(2) + 'x';
-
-    // Glow (orb only)
     document.getElementById('glowWrap').style.display = (kind === 'orb') ? 'flex' : 'none';
     document.getElementById('styleGlow').value = s.glow;
     document.getElementById('styleGlowVal').textContent = s.glow.toFixed(2) + 'x';
@@ -1655,15 +1835,12 @@
     const m = color.match(/rgba?\(([^)]+)\)/);
     if (!m) return '#ffffff';
     const parts = m[1].split(',').map(x => parseFloat(x.trim()));
-    const [r, g, b] = parts;
-    return '#' + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+    return '#' + parts.slice(0, 3).map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
   }
   function normalizeHex(c) {
     if (!c) return '#ffffff';
     if (c.startsWith('#')) {
-      if (c.length === 4) {
-        return '#' + c.slice(1).split('').map(x => x + x).join('');
-      }
+      if (c.length === 4) return '#' + c.slice(1).split('').map(x => x + x).join('');
       return c.toLowerCase();
     }
     return rgbaToHex(c);
@@ -1671,64 +1848,69 @@
 
   // Inspector wiring ----------------------------------------------
   document.getElementById('effectSelect').addEventListener('change', (e) => {
+    if (!state.selected) return;
     state.elements[state.selected].effect = e.target.value;
     renderLayers(); drawFrame();
   });
   document.getElementById('startInput').addEventListener('input', (e) => {
-    const v = Math.max(0, parseFloat(e.target.value) || 0);
-    state.elements[state.selected].start = v;
+    if (!state.selected) return;
+    state.elements[state.selected].start = Math.max(0, parseFloat(e.target.value) || 0);
     drawFrame();
   });
   document.getElementById('durInput').addEventListener('input', (e) => {
-    const v = Math.max(0.2, parseFloat(e.target.value) || 0.2);
-    state.elements[state.selected].duration = v;
+    if (!state.selected) return;
+    state.elements[state.selected].duration = Math.max(0.2, parseFloat(e.target.value) || 0.2);
     drawFrame();
   });
   document.getElementById('elText').addEventListener('input', (e) => {
-    if (state.selected === 'orb') return;
+    if (!state.selected || state.selected === 'orb') return;
     state.elements[state.selected].text = e.target.value;
     drawFrame();
   });
-
-  // Style wiring
   document.getElementById('styleColor').addEventListener('input', (e) => {
+    if (!state.selected) return;
     state.elements[state.selected].style.color = e.target.value;
     document.getElementById('styleColorHex').textContent = e.target.value.toUpperCase();
     drawFrame();
   });
   document.getElementById('styleColorReset').addEventListener('click', () => {
+    if (!state.selected) return;
     state.elements[state.selected].style.color = null;
-    renderInspector();
-    drawFrame();
+    renderInspector(); drawFrame();
   });
   document.getElementById('styleSize').addEventListener('input', (e) => {
+    if (!state.selected) return;
     const v = parseFloat(e.target.value);
     state.elements[state.selected].style.sizeScale = v;
     document.getElementById('styleSizeVal').textContent = v.toFixed(2) + 'x';
     drawFrame();
   });
   document.getElementById('styleX').addEventListener('input', (e) => {
+    if (!state.selected) return;
     state.elements[state.selected].style.xOffsetPct = parseFloat(e.target.value) || 0;
     drawFrame();
   });
   document.getElementById('styleY').addEventListener('input', (e) => {
+    if (!state.selected) return;
     state.elements[state.selected].style.yOffsetPct = parseFloat(e.target.value) || 0;
     drawFrame();
   });
   document.getElementById('styleTrack').addEventListener('input', (e) => {
+    if (!state.selected) return;
     const v = parseFloat(e.target.value);
     state.elements[state.selected].style.tracking = v;
     document.getElementById('styleTrackVal').textContent = v.toFixed(2) + 'x';
     drawFrame();
   });
   document.getElementById('styleGlow').addEventListener('input', (e) => {
+    if (!state.selected) return;
     const v = parseFloat(e.target.value);
     state.elements[state.selected].style.glow = v;
     document.getElementById('styleGlowVal').textContent = v.toFixed(2) + 'x';
     drawFrame();
   });
 
-  // Canvas click hit-test -----------------------------------------
+  // Canvas click hit-test — miss = deselect ------------------------
   stage.addEventListener('click', (e) => {
     if (state.recording) return;
     const rect = stage.getBoundingClientRect();
@@ -1741,11 +1923,31 @@
       const b = state.layerBoxes[k];
       if (!b) continue;
       if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
-        state.selected = k;
-        renderLayers(); renderInspector(); drawFrame();
+        selectKind(k);
         return;
       }
     }
+    deselect();
+  });
+
+  // Global click — deselect if click lands outside meaningful surfaces.
+  //
+  // "Meaningful": the canvas (handled separately), the layer list,
+  // any inspector control, the modal, the transport, or a preset button.
+  document.addEventListener('click', (e) => {
+    if (!state.selected) return;
+    const t = e.target;
+    if (t.closest('#stage')) return;
+    if (t.closest('.inspector')) return;
+    if (t.closest('.preset')) return;
+    if (t.closest('.modal-backdrop')) return;
+    if (t.closest('.transport')) return;
+    if (t.closest('.fs-btn')) return;
+    if (t.closest('.play-overlay')) return;
+    if (t.closest('.actions')) return;
+    if (t.closest('.globals')) return;
+    if (t.closest('.sel-box')) return;
+    deselect();
   });
 
   // Scrubber -------------------------------------------------------
@@ -1776,7 +1978,32 @@
     });
   });
 
-  // Global segmented controls
+  // Fullscreen -----------------------------------------------------
+  function toggleFullscreen() {
+    const isFs = document.fullscreenElement === frame || document.webkitFullscreenElement === frame;
+    if (isFs) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    } else {
+      (frame.requestFullscreen || frame.webkitRequestFullscreen).call(frame);
+    }
+  }
+  document.getElementById('btnFs').addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', () => { layoutStageForNormal(); drawFrame(); });
+  document.addEventListener('webkitfullscreenchange', () => { layoutStageForNormal(); drawFrame(); });
+
+  // Modal ----------------------------------------------------------
+  document.getElementById('cancelSave').addEventListener('click', closeSaveModal);
+  document.getElementById('confirmSave').addEventListener('click', commitDownload);
+  document.getElementById('fnameInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') commitDownload();
+    if (e.key === 'Escape') closeSaveModal();
+  });
+  // Click backdrop (not modal itself) to dismiss
+  document.getElementById('saveModal').addEventListener('click', (e) => {
+    if (e.target.id === 'saveModal') closeSaveModal();
+  });
+
+  // Global segmented ----------------------------------------------
   document.getElementById('segTheme').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     document.querySelectorAll('#segTheme button').forEach(x => x.classList.remove('on'));
@@ -1795,15 +2022,23 @@
     b.classList.add('on');
     setDuration(Number(b.dataset.dur));
   });
+  document.getElementById('segFormat').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#segFormat button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    setFormat(b.dataset.fmt);
+  });
 
   window.addEventListener('resize', () => setAspect(state.aspect));
 
   window.addEventListener('keydown', (e) => {
     if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
-    if (e.code === 'Space') { e.preventDefault(); togglePlay(); return; }
-    if (e.code === 'ArrowLeft') { pause(); state.time = Math.max(0, state.time - 0.1); drawFrame(); return; }
+    if (e.code === 'Space')      { e.preventDefault(); togglePlay(); return; }
+    if (e.code === 'ArrowLeft')  { pause(); state.time = Math.max(0, state.time - 0.1); drawFrame(); return; }
     if (e.code === 'ArrowRight') { pause(); state.time = Math.min(state.duration, state.time + 0.1); drawFrame(); return; }
-    if (e.code === 'KeyR') { record(); return; }
+    if (e.code === 'KeyR')       { record(); return; }
+    if (e.code === 'KeyF')       { toggleFullscreen(); return; }
+    if (e.code === 'Escape')     { deselect(); return; }
   });
 
   // Boot -----------------------------------------------------------
