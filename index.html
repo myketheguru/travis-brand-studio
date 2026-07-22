@@ -1,16 +1,9 @@
 <title>Travis · animation studio</title>
 <style>
-  /* ==========================================================
-   * Font stack — matches usetravis.com global.css
-   * If Inter is bundled locally (assets/fonts/Inter.woff2) or
-   * installed on the system, it's used; otherwise falls back to
-   * the same system stack the website uses.
-   * ========================================================== */
   :root {
     --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-    /* Studio chrome — dark, mirrors Travis's own product surface. */
     --ground: #07080b;
     --elevated: #0e1015;
     --elevated-2: #12141a;
@@ -37,10 +30,8 @@
   }
 
   * { box-sizing: border-box; }
-
   input, button, select { font-family: inherit; }
 
-  /* ---------- Layout scaffold ---------- */
   .page {
     min-height: 100vh;
     padding: 24px 20px 40px;
@@ -55,14 +46,8 @@
     .inspector { order: 2; }
   }
 
-  .col-main {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    min-width: 0;
-  }
+  .col-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
-  /* ---------- Header ---------- */
   .header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
   .eyebrow {
     font-family: var(--font-mono);
@@ -71,12 +56,7 @@
     text-transform: uppercase;
     color: var(--text-muted);
   }
-  .title {
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    margin: 0;
-  }
+  .title { font-size: 20px; font-weight: 500; letter-spacing: -0.01em; margin: 0; }
   .subtitle {
     color: var(--text-secondary);
     font-size: 13px;
@@ -84,14 +64,13 @@
     margin-left: auto;
   }
 
-  /* ---------- Presets carousel ---------- */
+  /* Presets */
   .presets {
     display: flex;
     gap: 10px;
     overflow-x: auto;
     padding: 4px 2px;
     scroll-snap-type: x mandatory;
-    -ms-overflow-style: none;
     scrollbar-width: none;
   }
   .presets::-webkit-scrollbar { display: none; }
@@ -120,11 +99,7 @@
     background: rgba(189, 158, 255, 0.06);
     box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.30), 0 6px 18px -8px rgba(189, 158, 255, 0.32);
   }
-  .preset .name {
-    font-size: 13px;
-    color: var(--text-primary);
-    font-weight: 500;
-  }
+  .preset .name { font-size: 13px; color: var(--text-primary); font-weight: 500; }
   .preset .kicker {
     font-family: var(--font-mono);
     font-size: 9.5px;
@@ -133,7 +108,7 @@
     color: var(--text-muted);
   }
 
-  /* ---------- Preview ---------- */
+  /* Preview */
   .preview-wrap {
     background: var(--elevated);
     border: 1px solid var(--border-ambient);
@@ -141,18 +116,12 @@
     padding: 18px;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
     gap: 12px;
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.02),
       0 20px 40px -20px rgba(0, 0, 0, 0.55);
   }
-  .stage-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
+  .stage-column { display: flex; flex-direction: column; align-items: center; gap: 12px; }
   .preview-frame {
     position: relative;
     background: black;
@@ -169,14 +138,8 @@
       background 260ms var(--curve-hero);
   }
   .preview-frame.light { background: #f5f0e5; }
-  .preview-frame canvas {
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
-    cursor: pointer;
-  }
+  .preview-frame canvas { display: block; max-width: 100%; max-height: 100%; cursor: pointer; }
 
-  /* Selection outline overlay (drawn as absolutely-positioned box). */
   .sel-box {
     position: absolute;
     border: 1.5px dashed rgba(189, 158, 255, 0.9);
@@ -201,7 +164,7 @@
     border: 1px solid rgba(189, 158, 255, 0.32);
   }
 
-  /* Center-overlay play/pause button — hides on activity. */
+  /* Play overlay — hover only. */
   .play-overlay {
     position: absolute;
     inset: 0;
@@ -209,8 +172,10 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    transition: opacity 200ms var(--curve-snap);
+    opacity: 0;
+    transition: opacity 180ms var(--curve-snap);
   }
+  .preview-frame:hover .play-overlay { opacity: 1; }
   .play-overlay button {
     all: unset;
     width: 68px;
@@ -235,25 +200,16 @@
     transform: scale(1.06);
   }
   .play-overlay button svg { width: 26px; height: 26px; }
-  .play-overlay.hidden { opacity: 0; }
 
-  /* ---------- Transport (progress + time + play button) ---------- */
-  .transport {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 4px;
-  }
+  /* Transport */
+  .transport { display: flex; align-items: center; gap: 12px; padding: 0 4px; }
   .transport .play-btn {
     all: unset;
-    width: 32px;
-    height: 32px;
+    width: 32px; height: 32px;
     border-radius: 50%;
     background: var(--lav-soft);
     border: 1px solid rgba(189, 158, 255, 0.32);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     color: var(--lav);
     flex-shrink: 0;
@@ -267,8 +223,7 @@
   .scrubber-wrap {
     flex: 1;
     height: 24px;
-    display: flex;
-    align-items: center;
+    display: flex; align-items: center;
     cursor: pointer;
     position: relative;
   }
@@ -291,8 +246,7 @@
   .scrubber-thumb {
     position: absolute;
     top: 50%;
-    width: 12px;
-    height: 12px;
+    width: 12px; height: 12px;
     border-radius: 50%;
     background: white;
     border: 2px solid var(--lav);
@@ -311,7 +265,6 @@
     min-width: 78px;
     text-align: right;
   }
-
   .preview-meta {
     display: flex;
     gap: 16px;
@@ -323,20 +276,15 @@
     flex-wrap: wrap;
     justify-content: center;
   }
-  .preview-meta .value {
-    color: var(--text-secondary);
-    margin-left: 4px;
-  }
+  .preview-meta .value { color: var(--text-secondary); margin-left: 4px; }
 
-  /* ---------- Global controls row ---------- */
+  /* Globals */
   .globals {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px;
   }
-  @media (max-width: 640px) {
-    .globals { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 640px) { .globals { grid-template-columns: 1fr; } }
   .card {
     background: var(--elevated);
     border: 1px solid var(--border-ambient);
@@ -375,10 +323,7 @@
     cursor: pointer;
     transition: all 180ms var(--curve-hero);
   }
-  .segmented button:hover {
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.02);
-  }
+  .segmented button:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.02); }
   .segmented button.on {
     background: var(--lav-soft);
     color: var(--lav);
@@ -390,13 +335,7 @@
     box-shadow: 0 0 0 1px rgba(210, 155, 100, 0.35);
   }
 
-  /* ---------- Actions ---------- */
-  .actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-  }
+  .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
   .btn {
     all: unset;
     display: inline-flex;
@@ -462,12 +401,9 @@
     0%, 60% { opacity: 1; }
     80%, 100% { opacity: 0.35; }
   }
-  .status.ok .dot {
-    background: rgb(74, 222, 128);
-    box-shadow: 0 0 6px rgba(74, 222, 128, 0.7);
-  }
+  .status.ok .dot { background: rgb(74, 222, 128); box-shadow: 0 0 6px rgba(74, 222, 128, 0.7); }
 
-  /* ---------- Inspector (right column) ---------- */
+  /* Inspector */
   .inspector {
     background: var(--elevated);
     border: 1px solid var(--border-ambient);
@@ -480,11 +416,7 @@
     position: sticky;
     top: 24px;
   }
-  .insp-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
+  .insp-section { display: flex; flex-direction: column; gap: 10px; }
   .insp-h {
     font-family: var(--font-mono);
     font-size: 10px;
@@ -501,13 +433,13 @@
     letter-spacing: 0.10em;
     text-transform: none;
   }
-
-  /* Layers list */
-  .layer-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  .divider {
+    height: 1px;
+    background: var(--border-ambient);
+    margin: 2px 0;
   }
+
+  .layer-list { display: flex; flex-direction: column; gap: 4px; }
   .layer {
     all: unset;
     display: flex;
@@ -520,9 +452,7 @@
     border: 1px solid transparent;
     transition: all 160ms var(--curve-snap);
   }
-  .layer:hover {
-    background: rgba(255, 255, 255, 0.04);
-  }
+  .layer:hover { background: rgba(255, 255, 255, 0.04); }
   .layer.on {
     background: rgba(189, 158, 255, 0.10);
     border-color: rgba(189, 158, 255, 0.32);
@@ -532,9 +462,7 @@
     background: var(--text-muted);
     flex-shrink: 0;
   }
-  .layer[data-kind="orb"] .kind-dot {
-    background: linear-gradient(135deg, var(--lav), var(--bronze));
-  }
+  .layer[data-kind="orb"] .kind-dot { background: linear-gradient(135deg, var(--lav), var(--bronze)); }
   .layer[data-kind="wordmark"] .kind-dot { background: var(--text-primary); }
   .layer[data-kind="tagline"] .kind-dot { background: var(--text-secondary); }
   .layer[data-kind="url"] .kind-dot { background: var(--bronze); }
@@ -566,13 +494,8 @@
   .layer.hidden-el { opacity: 0.4; }
   .layer.hidden-el .name { text-decoration: line-through; }
 
-  /* Effect chooser as a select */
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  .field .flabel {
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .flabel {
     font-family: var(--font-mono);
     font-size: 9.5px;
     letter-spacing: 0.16em;
@@ -593,13 +516,12 @@
   }
   .select:hover, .num-input:hover { border-color: rgba(255, 255, 255, 0.16); }
   .select:focus, .num-input:focus { border-color: rgba(189, 158, 255, 0.42); }
-  .num-input { cursor: text; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-
-  .field-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+  .num-input {
+    cursor: text;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
   .textfield {
     display: flex;
@@ -619,7 +541,60 @@
   }
   .textfield input::placeholder { color: var(--text-muted); }
 
-  .disabled-panel { opacity: 0.5; pointer-events: none; }
+  .color-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--border-ambient);
+    border-radius: 8px;
+    padding: 5px 8px 5px 5px;
+  }
+  .color-row input[type="color"] {
+    all: unset;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    overflow: hidden;
+    border: 1px solid var(--border-ambient);
+  }
+  .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 5px; }
+  .color-row .hex {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-primary);
+    flex: 1;
+    letter-spacing: 0.06em;
+  }
+  .color-row button {
+    all: unset;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 160ms var(--curve-snap);
+  }
+  .color-row button:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); }
+
+  .slider-row { display: flex; align-items: center; gap: 8px; }
+  .slider-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--lav);
+  }
+  .slider-row .sv {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-secondary);
+    min-width: 44px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
 </style>
 
 <div class="page">
@@ -632,9 +607,9 @@
         <h1 class="title">Intro / outro animation</h1>
       </div>
       <div class="subtitle">
-        Click any element on the canvas to select it. Change its
-        effect and timing on the right. Pick a preset to swap the
-        whole recipe at once.
+        Click any element on the canvas to select it. Change its effect,
+        timing, or style on the right. Pick a preset to swap the whole
+        recipe at once — everything rescales to fit the selected duration.
       </div>
     </div>
 
@@ -722,7 +697,9 @@
       <div class="layer-list" id="layerList"></div>
     </div>
 
-    <div class="insp-section" id="layerInspector">
+    <div class="divider"></div>
+
+    <div class="insp-section">
       <div class="insp-h"><span>Element</span><span class="hint" id="inspLayerLabel"></span></div>
 
       <div class="field" id="textFieldWrap">
@@ -748,16 +725,62 @@
         </div>
       </div>
     </div>
+
+    <div class="divider"></div>
+
+    <div class="insp-section" id="styleSection">
+      <div class="insp-h"><span>Style</span><span class="hint">overrides theme</span></div>
+
+      <div class="field" id="colorFieldWrap">
+        <div class="flabel">Color</div>
+        <div class="color-row">
+          <input id="styleColor" type="color" value="#ecedf1" />
+          <span class="hex" id="styleColorHex">#ecedf1</span>
+          <button id="styleColorReset" title="Reset to theme color">Reset</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="flabel">Size · <span id="styleSizeVal">1.00x</span></div>
+        <div class="slider-row">
+          <input id="styleSize" type="range" min="0.4" max="2.0" step="0.02" value="1" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <div class="flabel">X offset (%)</div>
+          <input type="number" class="num-input" id="styleX" step="1" value="0" />
+        </div>
+        <div class="field">
+          <div class="flabel">Y offset (%)</div>
+          <input type="number" class="num-input" id="styleY" step="1" value="0" />
+        </div>
+      </div>
+
+      <div class="field" id="trackingWrap">
+        <div class="flabel">Tracking · <span id="styleTrackVal">1.00x</span></div>
+        <div class="slider-row">
+          <input id="styleTrack" type="range" min="0" max="2.5" step="0.02" value="1" />
+        </div>
+      </div>
+
+      <div class="field" id="glowWrap">
+        <div class="flabel">Glow · <span id="styleGlowVal">1.00x</span></div>
+        <div class="slider-row">
+          <input id="styleGlow" type="range" min="0" max="2.5" step="0.02" value="1" />
+        </div>
+      </div>
+    </div>
   </aside>
 
 </div>
 
 <script>
   // ================================================================
-  // Travis animation studio — motion graphics mini-editor.
+  // Travis animation studio — motion-graphics mini-editor.
   // ================================================================
 
-  // Themes -----------------------------------------------------------
   const THEMES = {
     dark: {
       ground: '#07080b',
@@ -813,110 +836,43 @@
     },
   };
 
-  // Effect catalog ---------------------------------------------------
-  //
-  // Each effect returns an "appearance" object with alpha, translation,
-  // scale, and (for text) a `slice` fraction (0..1) determining how
-  // much of the string is revealed.
-  //
-  // t01 = time normalized within the element's duration (0..1).
-  // Values above 1 mean the effect is complete; we clamp downstream.
-
   const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
   const easeOutQuint = t => 1 - Math.pow(1 - t, 5);
-  const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const clamp01 = t => Math.max(0, Math.min(1, t));
 
   const EFFECTS = {
-    none: {
-      label: 'None',
-      apply: () => ({ alpha: 1, dx: 0, dy: 0, scale: 1, slice: 1 }),
-    },
-    'fade-up': {
-      label: 'Fade up',
-      apply: (t) => {
-        const e = easeOutCubic(clamp01(t));
-        return { alpha: e, dx: 0, dy: (1 - e) * 20, scale: 1, slice: 1 };
-      },
-    },
-    'fade-in': {
-      label: 'Fade in',
-      apply: (t) => {
-        const e = easeOutCubic(clamp01(t));
-        return { alpha: e, dx: 0, dy: 0, scale: 1, slice: 1 };
-      },
-    },
-    'slide-left': {
-      label: 'Slide left',
-      apply: (t) => {
-        const e = easeOutCubic(clamp01(t));
-        return { alpha: e, dx: (1 - e) * -40, dy: 0, scale: 1, slice: 1 };
-      },
-    },
-    'slide-right': {
-      label: 'Slide right',
-      apply: (t) => {
-        const e = easeOutCubic(clamp01(t));
-        return { alpha: e, dx: (1 - e) * 40, dy: 0, scale: 1, slice: 1 };
-      },
-    },
-    'scale-in': {
-      label: 'Scale in',
-      apply: (t) => {
-        const e = easeOutCubic(clamp01(t));
-        return { alpha: e, dx: 0, dy: 0, scale: 0.6 + 0.4 * e, slice: 1 };
-      },
-    },
-    'typewriter': {
-      label: 'Typewriter',
-      // Reveal characters progressively; hold visible after done.
-      apply: (t) => {
-        const e = clamp01(t);
-        return { alpha: 1, dx: 0, dy: 0, scale: 1, slice: e, cursor: t < 1.05 };
-      },
-    },
-    'split-in': {
-      label: 'Split in',
-      // Letters start clustered and spread apart while fading in.
-      apply: (t) => {
-        const e = easeOutCubic(clamp01(t));
-        return { alpha: e, dx: 0, dy: 0, scale: 1, slice: 1, splitTighten: 1 - e };
-      },
-    },
-    'split-up': {
-      label: 'Stagger up',
-      // Letters cascade in from below, one at a time. Handled specially
-      // in the wordmark renderer.
-      apply: (t) => {
-        return { alpha: 1, dx: 0, dy: 0, scale: 1, slice: 1, stagger: clamp01(t) };
-      },
-    },
-    // Orb-only.
-    'rise-breath': {
-      label: 'Rise + breath',
-      orb: true,
-      apply: (t) => ({ mode: 'rise', t: clamp01(t) }),
-    },
-    'glow-in': {
-      label: 'Glow in',
-      orb: true,
-      apply: (t) => ({ mode: 'glow', t: clamp01(t) }),
-    },
-    'pulse': {
-      label: 'Pulse',
-      orb: true,
-      apply: (t) => ({ mode: 'pulse', t: clamp01(t) }),
-    },
+    none:      { label: 'None',        apply: () => ({ alpha: 1 }) },
+    'fade-up': { label: 'Fade up',     apply: (t) => { const e = easeOutCubic(clamp01(t)); return { alpha: e, dy: (1 - e) * 20 }; } },
+    'fade-in': { label: 'Fade in',     apply: (t) => ({ alpha: easeOutCubic(clamp01(t)) }) },
+    'slide-left':  { label: 'Slide left',  apply: (t) => { const e = easeOutCubic(clamp01(t)); return { alpha: e, dx: (1 - e) * -40 }; } },
+    'slide-right': { label: 'Slide right', apply: (t) => { const e = easeOutCubic(clamp01(t)); return { alpha: e, dx: (1 - e) *  40 }; } },
+    'scale-in':    { label: 'Scale in',    apply: (t) => { const e = easeOutCubic(clamp01(t)); return { alpha: e, scale: 0.6 + 0.4 * e }; } },
+    'typewriter':  { label: 'Typewriter',  apply: (t) => { const e = clamp01(t); return { alpha: 1, slice: e, cursor: t < 1.05 }; } },
+    'split-in':    { label: 'Split in',    apply: (t) => { const e = easeOutCubic(clamp01(t)); return { alpha: e, splitTighten: 1 - e }; } },
+    'split-up':    { label: 'Stagger up',  apply: (t) => ({ alpha: 1, stagger: clamp01(t) }) },
+    'rise-breath': { label: 'Rise + breath', orb: true, apply: (t) => ({ mode: 'rise', t: clamp01(t) }) },
+    'glow-in':     { label: 'Glow in',       orb: true, apply: (t) => ({ mode: 'glow', t: clamp01(t) }) },
+    'pulse':       { label: 'Pulse',         orb: true, apply: (t) => ({ mode: 'pulse', t: clamp01(t) }) },
   };
 
   const TEXT_EFFECTS = ['none', 'fade-up', 'fade-in', 'slide-left', 'slide-right', 'scale-in', 'typewriter', 'split-in', 'split-up'];
-  const ORB_EFFECTS = ['none', 'rise-breath', 'glow-in', 'pulse', 'fade-in', 'scale-in'];
+  const ORB_EFFECTS  = ['none', 'rise-breath', 'glow-in', 'pulse', 'fade-in', 'scale-in'];
 
-  // Presets ----------------------------------------------------------
-  //
-  // A preset defines the elements array (order + effect + timing).
-  // Elements without an entry retain their previous state, so we
-  // always include all four in each preset for determinism.
+  // Default overrides shape.
+  function defaultOverrides(kind) {
+    return {
+      color: null,   // null = use theme color
+      sizeScale: 1,
+      xOffsetPct: 0, // % of stage width
+      yOffsetPct: 0, // % of stage height
+      tracking: 1,   // wordmark: letter-spacing multiplier
+      glow: 1,       // orb: outer glow multiplier
+    };
+  }
+
+  // Presets — timings are relative to the preset's natural length,
+  // which is computed at apply-time. Every apply rescales to fit
+  // state.duration so nothing runs past the end.
   const PRESETS = [
     {
       id: 'signature',
@@ -987,14 +943,9 @@
   ];
 
   const ELEMENT_KINDS = ['orb', 'wordmark', 'tagline', 'url'];
-  const ELEMENT_NAMES = {
-    orb: 'Orb',
-    wordmark: 'Wordmark',
-    tagline: 'Tagline',
-    url: 'URL',
-  };
+  const ELEMENT_NAMES = { orb: 'Orb', wordmark: 'Wordmark', tagline: 'Tagline', url: 'URL' };
 
-  // State ------------------------------------------------------------
+  // State ----------------------------------------------------------
   const stage = document.getElementById('stage');
   const frame = document.getElementById('frame');
   const ctx = stage.getContext('2d');
@@ -1011,19 +962,77 @@
     rafId: null,
     selected: 'wordmark',
     presetId: 'signature',
-    elements: JSON.parse(JSON.stringify(PRESETS[0].elements)),
+    elements: null,
     sizes: {
       '16:9': [1920, 1080],
       '9:16': [1080, 1920],
       '1:1':  [1080, 1080],
     },
-    lastMoveAt: 0,
-    layerBoxes: {}, // filled during draw so we can hit-test + show sel outline
+    layerBoxes: {},
   };
 
   function currentTheme() { return THEMES[state.theme]; }
 
-  // Backdrop ---------------------------------------------------------
+  // Element normalization + rescaling ------------------------------
+  //
+  // Every element carries a `.style` object with overrides. Preset
+  // objects don't ship style so we add it on apply.
+  function ensureStyle(el) {
+    if (!el.style) el.style = defaultOverrides();
+    else el.style = { ...defaultOverrides(), ...el.style };
+    return el;
+  }
+
+  function naturalDurationOf(elements) {
+    let m = 0;
+    for (const k of ELEMENT_KINDS) {
+      const e = elements[k];
+      if (!e.enabled) continue;
+      m = Math.max(m, e.start + e.duration);
+    }
+    return m || 1;
+  }
+
+  function scaleTimings(elements, factor) {
+    for (const k of ELEMENT_KINDS) {
+      elements[k].start *= factor;
+      elements[k].duration *= factor;
+    }
+  }
+
+  function applyPreset(id) {
+    const p = PRESETS.find(x => x.id === id);
+    if (!p) return;
+    state.presetId = id;
+    const clone = JSON.parse(JSON.stringify(p.elements));
+    for (const k of ELEMENT_KINDS) ensureStyle(clone[k]);
+    // Fit the preset's natural length to the currently-selected duration.
+    const natural = naturalDurationOf(clone);
+    const factor = state.duration / natural;
+    scaleTimings(clone, factor);
+    state.elements = clone;
+    state.time = 0;
+    renderPresets();
+    renderLayers();
+    renderInspector();
+    drawFrame();
+    setStatus('Preset · ' + p.name + ' — fit to ' + state.duration + 's', null);
+  }
+
+  function setDuration(d) {
+    if (state.elements) {
+      // Rescale current timeline into the new duration so nothing
+      // gets cut off — including user-edited timings.
+      const factor = d / state.duration;
+      scaleTimings(state.elements, factor);
+    }
+    state.duration = d;
+    if (state.time > d) state.time = d;
+    renderInspector();
+    drawFrame();
+  }
+
+  // Backdrop -------------------------------------------------------
   function drawBackdrop() {
     const T = currentTheme();
     const w = stage.width, h = stage.height;
@@ -1053,14 +1062,8 @@
     ctx.strokeStyle = T.grid;
     ctx.lineWidth = 1;
     ctx.beginPath();
-    for (let x = step; x < w; x += step) {
-      ctx.moveTo(x + 0.5, 0);
-      ctx.lineTo(x + 0.5, h);
-    }
-    for (let y = step; y < h; y += step) {
-      ctx.moveTo(0, y + 0.5);
-      ctx.lineTo(w, y + 0.5);
-    }
+    for (let x = step; x < w; x += step) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
+    for (let y = step; y < h; y += step) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
     ctx.stroke();
     ctx.globalCompositeOperation = 'destination-out';
     const edgeFade = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.22, w/2, h/2, Math.max(w,h)*0.55);
@@ -1073,7 +1076,7 @@
     ctx.globalAlpha = 1;
   }
 
-  // Orb --------------------------------------------------------------
+  // Orb ------------------------------------------------------------
   function drawOrb() {
     const el = state.elements.orb;
     if (!el.enabled) return;
@@ -1085,12 +1088,18 @@
     const localT = (t - el.start) / el.duration;
     if (localT < 0) return;
 
-    const effect = EFFECTS[el.effect];
-    const spec = effect ? effect.apply(localT) : { mode: 'rise', t: 1 };
+    const eff = EFFECTS[el.effect];
+    const spec = eff ? eff.apply(localT) : { mode: 'rise', t: 1 };
 
-    const cx = w / 2;
-    const targetCY = h * 0.42;
-    const startCY = h * 0.62;
+    const style = el.style;
+    const sizeScale = style.sizeScale ?? 1;
+    const glowMul = style.glow ?? 1;
+    const dx = (style.xOffsetPct / 100) * w;
+    const dy = (style.yOffsetPct / 100) * h;
+
+    const cx = w / 2 + dx;
+    const targetCY = h * 0.42 + dy;
+    const startCY = h * 0.62 + dy;
     let progress = clamp01(spec.t || 0);
     let cy, orbR, alpha = 1;
 
@@ -1098,25 +1107,24 @@
       const inT = easeOutCubic(progress);
       const holdT = Math.max(0, t - (el.start + el.duration));
       const breath = 1.0 + Math.sin(holdT * 1.2) * 0.018;
-      orbR = shortSide * 0.11 * inT * breath;
+      orbR = shortSide * 0.11 * inT * breath * sizeScale;
       cy = startCY + (targetCY - startCY) * inT;
     } else if (spec.mode === 'glow') {
       const inT = easeOutQuint(progress);
       const holdT = Math.max(0, t - (el.start + el.duration));
       const breath = 1.0 + Math.sin(holdT * 1.0) * 0.014;
-      orbR = shortSide * 0.11 * inT * breath;
+      orbR = shortSide * 0.11 * inT * breath * sizeScale;
       cy = targetCY;
       alpha = inT;
     } else if (spec.mode === 'pulse') {
       const inT = easeOutCubic(progress);
       const holdT = Math.max(0, t - (el.start + el.duration));
       const pulse = 1.0 + Math.sin(holdT * 2.4) * 0.045 * Math.exp(-holdT * 0.6);
-      orbR = shortSide * 0.11 * inT * pulse;
+      orbR = shortSide * 0.11 * inT * pulse * sizeScale;
       cy = targetCY;
     } else {
-      // Fallback for effects that aren't orb-specific: use their alpha/scale/dy.
       const inT = clamp01(spec.alpha ?? progress);
-      orbR = shortSide * 0.11 * inT * (spec.scale ?? 1);
+      orbR = shortSide * 0.11 * inT * (spec.scale ?? 1) * sizeScale;
       cy = targetCY + (spec.dy ?? 0) * (shortSide / 1080);
       alpha = spec.alpha ?? 1;
     }
@@ -1126,22 +1134,32 @@
     ctx.save();
     ctx.globalAlpha = alpha;
 
-    const glowR = orbR * 3.2;
-    const glow = ctx.createRadialGradient(cx, cy, orbR * 0.4, cx, cy, glowR);
-    glow.addColorStop(0, T.orbOuter1);
-    glow.addColorStop(0.35, T.orbOuter2);
-    glow.addColorStop(1, 'rgba(189, 158, 255, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(cx - glowR, cy - glowR, glowR * 2, glowR * 2);
+    if (glowMul > 0) {
+      const glowR = orbR * 3.2 * glowMul;
+      const glow = ctx.createRadialGradient(cx, cy, orbR * 0.4, cx, cy, glowR);
+      const themeOverride = style.color;
+      // Outer glow color: default to theme, tint with overrides.color if set.
+      const oc = themeOverride
+        ? colorWithAlpha(themeOverride, 0.42)
+        : T.orbOuter1;
+      const om = themeOverride
+        ? colorWithAlpha(themeOverride, 0.16)
+        : T.orbOuter2;
+      glow.addColorStop(0, oc);
+      glow.addColorStop(0.35, om);
+      glow.addColorStop(1, colorWithAlpha(themeOverride ?? '#7c5cff', 0));
+      ctx.fillStyle = glow;
+      ctx.fillRect(cx - glowR, cy - glowR, glowR * 2, glowR * 2);
 
-    const bronzeGlow = ctx.createRadialGradient(
-      cx + orbR * 0.15, cy + orbR * 0.25, 0,
-      cx + orbR * 0.15, cy + orbR * 0.25, orbR * 1.6
-    );
-    bronzeGlow.addColorStop(0, T.orbBronze);
-    bronzeGlow.addColorStop(1, 'rgba(210, 155, 100, 0)');
-    ctx.fillStyle = bronzeGlow;
-    ctx.fillRect(cx - orbR * 1.8, cy - orbR * 1.8, orbR * 3.6, orbR * 3.6);
+      const bronzeGlow = ctx.createRadialGradient(
+        cx + orbR * 0.15, cy + orbR * 0.25, 0,
+        cx + orbR * 0.15, cy + orbR * 0.25, orbR * 1.6 * glowMul
+      );
+      bronzeGlow.addColorStop(0, T.orbBronze);
+      bronzeGlow.addColorStop(1, 'rgba(210, 155, 100, 0)');
+      ctx.fillStyle = bronzeGlow;
+      ctx.fillRect(cx - orbR * 1.8, cy - orbR * 1.8, orbR * 3.6, orbR * 3.6);
+    }
 
     const body = ctx.createRadialGradient(cx - orbR * 0.35, cy - orbR * 0.4, 0, cx, cy, orbR);
     T.orbBody.forEach(([stop, color]) => body.addColorStop(stop, color));
@@ -1170,26 +1188,46 @@
 
     ctx.restore();
 
-    state.layerBoxes.orb = {
-      x: cx - orbR, y: cy - orbR,
-      w: orbR * 2, h: orbR * 2,
-    };
+    state.layerBoxes.orb = { x: cx - orbR, y: cy - orbR, w: orbR * 2, h: orbR * 2 };
   }
 
-  // Text renderers ---------------------------------------------------
-  //
-  // We render text elements uniformly with per-effect variations.
-  // Layout is kind-specific — wordmark is bigger, tagline is medium,
-  // URL is smallest.
+  // Given a hex "#rrggbb" (or an rgb/rgba string), return an rgba
+  // string with the requested alpha. Used for orb glow tinting.
+  function colorWithAlpha(color, alpha) {
+    if (!color) return `rgba(0,0,0,${alpha})`;
+    color = color.trim();
+    if (color.startsWith('#')) {
+      const hex = color.slice(1);
+      const bigint = parseInt(hex.length === 3
+        ? hex.split('').map(c => c + c).join('')
+        : hex, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >>  8) & 255;
+      const b = (bigint) & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    // If it's already rgb/rgba, replace/append the alpha.
+    const m = color.match(/rgba?\(([^)]+)\)/);
+    if (m) {
+      const parts = m[1].split(',').map(x => x.trim()).slice(0, 3);
+      return `rgba(${parts.join(', ')}, ${alpha})`;
+    }
+    return color;
+  }
 
-  function textStyleFor(kind) {
+  function getVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim() || 'ui-sans-serif';
+  }
+
+  // Text style base ------------------------------------------------
+  function textStyleBase(kind) {
     const T = currentTheme();
     const shortSide = Math.min(stage.width, stage.height);
     if (kind === 'wordmark') {
       return {
         y: stage.height * 0.60,
         fontSize: shortSide * 0.075,
-        font: `500 ${shortSide * 0.075}px ${getVar('--font-mono')}`,
+        fontFamily: getVar('--font-mono'),
         color: T.wordmark,
         shadow: T.wordmarkShadow,
         shadowBlur: shortSide * 0.075 * 0.18,
@@ -1201,7 +1239,7 @@
       return {
         y: stage.height * 0.72,
         fontSize: shortSide * 0.022,
-        font: `400 ${shortSide * 0.022}px ${getVar('--font-sans')}`,
+        fontFamily: getVar('--font-sans'),
         color: T.tagline,
         shadow: null,
         shadowBlur: 0,
@@ -1213,7 +1251,7 @@
     return {
       y: stage.height * 0.83,
       fontSize: shortSide * 0.017,
-      font: `500 ${shortSide * 0.017}px ${getVar('--font-mono')}`,
+      fontFamily: getVar('--font-mono'),
       color: T.url,
       shadow: null,
       shadowBlur: 0,
@@ -1223,10 +1261,6 @@
     };
   }
 
-  function getVar(name) {
-    return getComputedStyle(document.body).getPropertyValue(name).trim() || 'ui-sans-serif';
-  }
-
   function drawText(kind) {
     const el = state.elements[kind];
     if (!el.enabled) return;
@@ -1234,15 +1268,27 @@
     const localT = (t - el.start) / el.duration;
     if (localT < 0) return;
 
-    const effect = EFFECTS[el.effect] || EFFECTS['fade-up'];
-    const spec = effect.apply(localT);
+    const eff = EFFECTS[el.effect] || EFFECTS['fade-up'];
+    const spec = eff.apply(localT);
     if ((spec.alpha ?? 1) <= 0.001) return;
 
-    const style = textStyleFor(kind);
+    const base = textStyleBase(kind);
+    const s = el.style;
+
+    // Merged style with overrides applied.
+    const style = {
+      ...base,
+      fontSize: base.fontSize * (s.sizeScale ?? 1),
+      shadowBlur: base.shadowBlur * (s.sizeScale ?? 1),
+      tracking: base.tracking * (s.tracking ?? 1),
+      color: s.color || base.color,
+    };
+    const weight = kind === 'wordmark' ? 500 : (kind === 'url' ? 500 : 400);
+    style.font = `${weight} ${style.fontSize}px ${style.fontFamily}`;
+
     const w = stage.width;
     let raw = el.text ?? '';
     if (style.uppercase) raw = raw.toUpperCase();
-    // urls read best lowercase
     if (kind === 'url') raw = raw.toLowerCase();
 
     ctx.save();
@@ -1255,23 +1301,23 @@
       ctx.shadowBlur = style.shadowBlur;
     }
 
-    const cx = w / 2;
-    const cy = style.y + (spec.dy ?? 0) * (Math.min(w, stage.height) / 1080);
+    const styleDx = (s.xOffsetPct / 100) * stage.width;
+    const styleDy = (s.yOffsetPct / 100) * stage.height;
 
-    // Scale about center
+    const cx = w / 2 + styleDx;
+    const cy = style.y + styleDy + (spec.dy ?? 0) * (Math.min(w, stage.height) / 1080);
+
     if ((spec.scale ?? 1) !== 1) {
       ctx.translate(cx, cy);
       ctx.scale(spec.scale, spec.scale);
       ctx.translate(-cx, -cy);
     }
 
-    // dx applied uniformly
     const dxPx = (spec.dx ?? 0) * (Math.min(w, stage.height) / 1080);
 
-    // ----- Wordmark: letter-tracked. Handle split-in, split-up specially. -----
     if (kind === 'wordmark') {
       const letters = raw.split('');
-      const tracking = style.tracking * (1 - (spec.splitTighten ?? 0)); // split-in tightens tracking
+      const tracking = style.tracking * (1 - (spec.splitTighten ?? 0));
       const widths = letters.map(L => ctx.measureText(L).width);
       const totalW = widths.reduce((a, b) => a + b, 0) + tracking * (letters.length - 1);
 
@@ -1279,16 +1325,15 @@
       ctx.textAlign = 'left';
 
       if (spec.stagger !== undefined) {
-        // split-up: cascade each letter from below with its own local timing
         const perLetter = 1 / letters.length;
         const staggerT = spec.stagger;
         for (let i = 0; i < letters.length; i++) {
           const localLetter = clamp01((staggerT - i * perLetter * 0.6) / (perLetter * 1.4));
           const e = easeOutCubic(localLetter);
-          const dy = (1 - e) * style.fontSize * 0.6;
+          const dyLet = (1 - e) * style.fontSize * 0.6;
           const savedAlpha = ctx.globalAlpha;
           ctx.globalAlpha = savedAlpha * e;
-          ctx.fillText(letters[i], x, cy + dy);
+          ctx.fillText(letters[i], x, cy + dyLet);
           ctx.globalAlpha = savedAlpha;
           x += widths[i] + tracking;
         }
@@ -1299,15 +1344,13 @@
         }
       }
 
-      // Bounding box for hit-testing / sel outline.
-      const boxLeft = cx - totalW / 2 + dxPx;
       state.layerBoxes.wordmark = {
-        x: boxLeft, y: cy - style.fontSize * 0.55,
-        w: totalW, h: style.fontSize * 1.1,
+        x: cx - totalW / 2 + dxPx,
+        y: cy - style.fontSize * 0.55,
+        w: totalW,
+        h: style.fontSize * 1.1,
       };
-    }
-    // ----- Tagline + URL: single measured line, respect typewriter slice. -----
-    else {
+    } else {
       let display = raw;
       if (spec.slice !== undefined && spec.slice < 1) {
         const n = Math.floor(raw.length * spec.slice);
@@ -1320,7 +1363,6 @@
       ctx.textAlign = 'left';
       ctx.fillText(display, textX, cy);
 
-      // Blinking cursor for typewriter while running.
       if (spec.cursor) {
         const cursorX = textX + metrics.width + style.fontSize * 0.08;
         const cursorH = style.fontSize * 0.9;
@@ -1333,10 +1375,9 @@
         ctx.restore();
       }
 
-      // URL underline mark.
       if (kind === 'url' && style.urlUnder) {
         const shortSide = Math.min(w, stage.height);
-        const ulW = shortSide * 0.020;
+        const ulW = shortSide * 0.020 * (s.sizeScale ?? 1);
         ctx.save();
         ctx.shadowBlur = 0;
         ctx.fillStyle = style.urlUnder;
@@ -1355,7 +1396,6 @@
     ctx.restore();
   }
 
-  // Frame renderer ---------------------------------------------------
   function drawFrame() {
     state.layerBoxes = {};
     drawBackdrop();
@@ -1375,7 +1415,6 @@
       box.classList.remove('on');
       return;
     }
-    // Scale from stage native to preview CSS.
     const rect = stage.getBoundingClientRect();
     const parentRect = frame.getBoundingClientRect();
     const scaleX = rect.width / stage.width;
@@ -1395,16 +1434,14 @@
     document.getElementById('scrubberThumb').style.left = (pct * 100) + '%';
     document.getElementById('timeLabel').textContent =
       state.time.toFixed(1) + 's / ' + state.duration.toFixed(1) + 's';
-    // Transport play button icon
-    document.getElementById('transportIcon').innerHTML = state.playing
+    const icon = state.playing
       ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z" fill="currentColor" stroke="none"/>'
       : '<path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/>';
-    document.getElementById('overlayIcon').innerHTML = state.playing
-      ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z" fill="currentColor" stroke="none"/>'
-      : '<path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/>';
+    document.getElementById('transportIcon').innerHTML = icon;
+    document.getElementById('overlayIcon').innerHTML = icon;
   }
 
-  // Playback ---------------------------------------------------------
+  // Playback -------------------------------------------------------
   function play() {
     if (state.playing) return;
     if (state.time >= state.duration - 0.02) state.time = 0;
@@ -1414,7 +1451,6 @@
     state.rafId = requestAnimationFrame(loop);
     setStatus('Playing…', null);
   }
-
   function pause() {
     if (!state.playing) return;
     state.playing = false;
@@ -1422,13 +1458,10 @@
     drawFrame();
     setStatus('Paused.', null);
   }
-
   function togglePlay() {
     if (state.recording) return;
-    if (state.playing) pause();
-    else play();
+    if (state.playing) pause(); else play();
   }
-
   function loop(now) {
     if (!state.playing) return;
     const dt = (now - state.startedAt) / 1000;
@@ -1443,29 +1476,20 @@
     drawFrame();
     state.rafId = requestAnimationFrame(loop);
   }
-
   let onLoopDone = () => setStatus('Ready.', null);
 
-  // Recording --------------------------------------------------------
+  // Recording ------------------------------------------------------
   async function record() {
     if (state.recording) return;
-
-    const candidates = [
-      'video/webm;codecs=vp9',
-      'video/webm;codecs=vp8',
-      'video/webm',
-    ];
-    const mimeType = candidates.find((m) => MediaRecorder.isTypeSupported(m));
+    const candidates = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+    const mimeType = candidates.find(m => MediaRecorder.isTypeSupported(m));
     if (!mimeType) { setStatus('MediaRecorder unsupported.', null); return; }
 
     const stream = stage.captureStream(30);
-    const recorder = new MediaRecorder(stream, {
-      mimeType,
-      videoBitsPerSecond: 10_000_000,
-    });
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 10_000_000 });
     const chunks = [];
     recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
-    const donePromise = new Promise((resolve) => { recorder.onstop = () => resolve(); });
+    const donePromise = new Promise(res => { recorder.onstop = () => res(); });
 
     state.recording = true;
     setStatus('Recording…', 'rec');
@@ -1487,12 +1511,11 @@
     onLoopDone = () => setStatus('Ready.', null);
   }
 
-  // Aspect / theme / duration ----------------------------------------
+  // Aspect / theme -------------------------------------------------
   function setAspect(aspect) {
     state.aspect = aspect;
     const [w, h] = state.sizes[aspect];
-    stage.width = w;
-    stage.height = h;
+    stage.width = w; stage.height = h;
     const maxW = Math.min(window.innerWidth - 400, 1100);
     const maxH = window.innerHeight * 0.55;
     let cssW = maxW;
@@ -1506,20 +1529,12 @@
     document.getElementById('metaSize').textContent = w + ' × ' + h;
     drawFrame();
   }
-
   function setTheme(theme) {
     state.theme = theme;
     document.getElementById('metaTheme').textContent = theme;
     frame.classList.toggle('light', theme === 'light');
     drawFrame();
   }
-
-  function setDuration(d) {
-    state.duration = d;
-    if (state.time > d) state.time = d;
-    drawFrame();
-  }
-
   function setStatus(text, kind) {
     const el = document.getElementById('status');
     el.classList.remove('rec', 'ok');
@@ -1527,7 +1542,7 @@
     document.getElementById('statusText').textContent = text;
   }
 
-  // Presets ----------------------------------------------------------
+  // Presets --------------------------------------------------------
   function renderPresets() {
     const wrap = document.getElementById('presets');
     wrap.innerHTML = '';
@@ -1541,20 +1556,7 @@
     });
   }
 
-  function applyPreset(id) {
-    const p = PRESETS.find(x => x.id === id);
-    if (!p) return;
-    state.presetId = id;
-    state.elements = JSON.parse(JSON.stringify(p.elements));
-    state.time = 0;
-    renderPresets();
-    renderLayers();
-    renderInspector();
-    drawFrame();
-    setStatus('Preset · ' + p.name, null);
-  }
-
-  // Layer list -------------------------------------------------------
+  // Layers ---------------------------------------------------------
   function renderLayers() {
     const list = document.getElementById('layerList');
     list.innerHTML = '';
@@ -1587,19 +1589,22 @@
     });
   }
 
-  // Inspector --------------------------------------------------------
+  // Inspector -----------------------------------------------------
+  //
+  // Color picker: HTML color inputs can't hold a "null" state, so we
+  // track "using theme" separately. If `style.color` is null, we show
+  // the theme's current color as the swatch value but a "Reset"
+  // button reads as inert (no-op). If overridden, "Reset" clears back
+  // to null.
   function renderInspector() {
     const kind = state.selected;
     const el = state.elements[kind];
+    const s = el.style;
     document.getElementById('inspLayerLabel').textContent = ELEMENT_NAMES[kind];
 
-    // Text field visibility (orb has no text)
     document.getElementById('textFieldWrap').style.display = (kind === 'orb') ? 'none' : 'flex';
-    if (kind !== 'orb') {
-      document.getElementById('elText').value = el.text ?? '';
-    }
+    if (kind !== 'orb') document.getElementById('elText').value = el.text ?? '';
 
-    // Effect list
     const isOrb = kind === 'orb';
     const options = isOrb ? ORB_EFFECTS : TEXT_EFFECTS;
     const select = document.getElementById('effectSelect');
@@ -1612,15 +1617,62 @@
       select.appendChild(o);
     });
 
-    document.getElementById('startInput').value = el.start;
-    document.getElementById('durInput').value = el.duration;
+    document.getElementById('startInput').value = el.start.toFixed(2);
+    document.getElementById('durInput').value = el.duration.toFixed(2);
+
+    // Style controls
+    // Color
+    const themeColor = kind === 'orb'
+      ? '#bd9eff' // representative orb accent
+      : rgbaToHex(textStyleBase(kind).color);
+    const activeColor = s.color || themeColor;
+    document.getElementById('styleColor').value = normalizeHex(activeColor);
+    document.getElementById('styleColorHex').textContent = normalizeHex(activeColor).toUpperCase() + (s.color ? '' : ' · theme');
+
+    // Size
+    document.getElementById('styleSize').value = s.sizeScale;
+    document.getElementById('styleSizeVal').textContent = s.sizeScale.toFixed(2) + 'x';
+
+    // Position
+    document.getElementById('styleX').value = s.xOffsetPct;
+    document.getElementById('styleY').value = s.yOffsetPct;
+
+    // Tracking (wordmark only)
+    document.getElementById('trackingWrap').style.display = (kind === 'wordmark') ? 'flex' : 'none';
+    document.getElementById('styleTrack').value = s.tracking;
+    document.getElementById('styleTrackVal').textContent = s.tracking.toFixed(2) + 'x';
+
+    // Glow (orb only)
+    document.getElementById('glowWrap').style.display = (kind === 'orb') ? 'flex' : 'none';
+    document.getElementById('styleGlow').value = s.glow;
+    document.getElementById('styleGlowVal').textContent = s.glow.toFixed(2) + 'x';
   }
 
-  // Wire inspector controls
+  function rgbaToHex(color) {
+    if (!color) return '#ffffff';
+    color = color.trim();
+    if (color.startsWith('#')) return color;
+    const m = color.match(/rgba?\(([^)]+)\)/);
+    if (!m) return '#ffffff';
+    const parts = m[1].split(',').map(x => parseFloat(x.trim()));
+    const [r, g, b] = parts;
+    return '#' + [r, g, b].map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+  }
+  function normalizeHex(c) {
+    if (!c) return '#ffffff';
+    if (c.startsWith('#')) {
+      if (c.length === 4) {
+        return '#' + c.slice(1).split('').map(x => x + x).join('');
+      }
+      return c.toLowerCase();
+    }
+    return rgbaToHex(c);
+  }
+
+  // Inspector wiring ----------------------------------------------
   document.getElementById('effectSelect').addEventListener('change', (e) => {
     state.elements[state.selected].effect = e.target.value;
-    renderLayers();
-    drawFrame();
+    renderLayers(); drawFrame();
   });
   document.getElementById('startInput').addEventListener('input', (e) => {
     const v = Math.max(0, parseFloat(e.target.value) || 0);
@@ -1638,7 +1690,45 @@
     drawFrame();
   });
 
-  // Canvas click for hit-testing -------------------------------------
+  // Style wiring
+  document.getElementById('styleColor').addEventListener('input', (e) => {
+    state.elements[state.selected].style.color = e.target.value;
+    document.getElementById('styleColorHex').textContent = e.target.value.toUpperCase();
+    drawFrame();
+  });
+  document.getElementById('styleColorReset').addEventListener('click', () => {
+    state.elements[state.selected].style.color = null;
+    renderInspector();
+    drawFrame();
+  });
+  document.getElementById('styleSize').addEventListener('input', (e) => {
+    const v = parseFloat(e.target.value);
+    state.elements[state.selected].style.sizeScale = v;
+    document.getElementById('styleSizeVal').textContent = v.toFixed(2) + 'x';
+    drawFrame();
+  });
+  document.getElementById('styleX').addEventListener('input', (e) => {
+    state.elements[state.selected].style.xOffsetPct = parseFloat(e.target.value) || 0;
+    drawFrame();
+  });
+  document.getElementById('styleY').addEventListener('input', (e) => {
+    state.elements[state.selected].style.yOffsetPct = parseFloat(e.target.value) || 0;
+    drawFrame();
+  });
+  document.getElementById('styleTrack').addEventListener('input', (e) => {
+    const v = parseFloat(e.target.value);
+    state.elements[state.selected].style.tracking = v;
+    document.getElementById('styleTrackVal').textContent = v.toFixed(2) + 'x';
+    drawFrame();
+  });
+  document.getElementById('styleGlow').addEventListener('input', (e) => {
+    const v = parseFloat(e.target.value);
+    state.elements[state.selected].style.glow = v;
+    document.getElementById('styleGlowVal').textContent = v.toFixed(2) + 'x';
+    drawFrame();
+  });
+
+  // Canvas click hit-test -----------------------------------------
   stage.addEventListener('click', (e) => {
     if (state.recording) return;
     const rect = stage.getBoundingClientRect();
@@ -1646,7 +1736,6 @@
     const scaleY = stage.height / rect.height;
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
-    // Priority order: text elements over orb, since text is on top
     const priority = ['url', 'tagline', 'wordmark', 'orb'];
     for (const k of priority) {
       const b = state.layerBoxes[k];
@@ -1659,52 +1748,26 @@
     }
   });
 
-  // Scrubber ---------------------------------------------------------
+  // Scrubber -------------------------------------------------------
   (function wireScrubber() {
     const scrub = document.getElementById('scrubber');
     let dragging = false;
-
     function timeFromEvent(ev) {
       const rect = scrub.getBoundingClientRect();
       const x = clamp01((ev.clientX - rect.left) / rect.width);
       return x * state.duration;
     }
-
-    scrub.addEventListener('mousedown', (ev) => {
-      dragging = true;
-      pause();
-      state.time = timeFromEvent(ev);
-      drawFrame();
-    });
-    window.addEventListener('mousemove', (ev) => {
-      if (!dragging) return;
-      state.time = timeFromEvent(ev);
-      drawFrame();
-    });
+    scrub.addEventListener('mousedown', (ev) => { dragging = true; pause(); state.time = timeFromEvent(ev); drawFrame(); });
+    window.addEventListener('mousemove', (ev) => { if (!dragging) return; state.time = timeFromEvent(ev); drawFrame(); });
     window.addEventListener('mouseup', () => { dragging = false; });
-
-    // Touch
-    scrub.addEventListener('touchstart', (ev) => {
-      dragging = true;
-      pause();
-      state.time = timeFromEvent(ev.touches[0]);
-      drawFrame();
-    }, { passive: true });
-    window.addEventListener('touchmove', (ev) => {
-      if (!dragging) return;
-      state.time = timeFromEvent(ev.touches[0]);
-      drawFrame();
-    }, { passive: true });
+    scrub.addEventListener('touchstart', (ev) => { dragging = true; pause(); state.time = timeFromEvent(ev.touches[0]); drawFrame(); }, { passive: true });
+    window.addEventListener('touchmove', (ev) => { if (!dragging) return; state.time = timeFromEvent(ev.touches[0]); drawFrame(); }, { passive: true });
     window.addEventListener('touchend', () => { dragging = false; });
   })();
 
-  // Play buttons -----------------------------------------------------
   document.getElementById('btnPlay').addEventListener('click', togglePlay);
   document.getElementById('btnOverlayPlay').addEventListener('click', togglePlay);
-  document.getElementById('btnPreview').addEventListener('click', () => {
-    state.time = 0;
-    play();
-  });
+  document.getElementById('btnPreview').addEventListener('click', () => { state.time = 0; play(); });
   document.getElementById('btnRec').addEventListener('click', () => {
     record().catch((err) => {
       console.warn(err);
@@ -1713,23 +1776,7 @@
     });
   });
 
-  // Overlay auto-hide during play -----------------------------------
-  const overlay = document.getElementById('playOverlay');
-  frame.addEventListener('mousemove', () => {
-    state.lastMoveAt = performance.now();
-    overlay.classList.remove('hidden');
-  });
-  frame.addEventListener('mouseleave', () => {
-    if (state.playing) overlay.classList.add('hidden');
-  });
-  setInterval(() => {
-    if (state.playing && performance.now() - state.lastMoveAt > 1200) {
-      overlay.classList.add('hidden');
-    }
-    if (!state.playing) overlay.classList.remove('hidden');
-  }, 400);
-
-  // Global segmented controls ----------------------------------------
+  // Global segmented controls
   document.getElementById('segTheme').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     document.querySelectorAll('#segTheme button').forEach(x => x.classList.remove('on'));
@@ -1751,7 +1798,6 @@
 
   window.addEventListener('resize', () => setAspect(state.aspect));
 
-  // Keyboard: space toggles play, arrows scrub, tab cycles layers ----
   window.addEventListener('keydown', (e) => {
     if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
     if (e.code === 'Space') { e.preventDefault(); togglePlay(); return; }
@@ -1760,9 +1806,8 @@
     if (e.code === 'KeyR') { record(); return; }
   });
 
-  // Boot -------------------------------------------------------------
+  // Boot -----------------------------------------------------------
   applyPreset('signature');
   setTheme('dark');
   setAspect('16:9');
-  setDuration(5);
 </script>
