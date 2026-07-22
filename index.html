@@ -756,6 +756,191 @@
     letter-spacing: 0.02em;
     word-break: break-all;
   }
+
+  /* ==============================================================
+   * Mobile — feels like a native app on phones.
+   *
+   * Layout collapses to a single column with the canvas dominating
+   * the viewport, presets carousel underneath, tab bar to switch
+   * between Layers / Element / Style / Setup, and a fixed bottom
+   * action bar for Preview + Record & Download.
+   * ============================================================== */
+
+  .mobile-tabs { display: none; }
+  .mobile-action-bar { display: none; }
+
+  @media (max-width: 900px) {
+    .page {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      max-width: 100%;
+      min-height: 100dvh;
+    }
+    /* Let both columns' children participate in the outer flex order */
+    .col-main, .inspector { display: contents; }
+
+    /* Ordering — top to bottom on mobile */
+    .header             { order: 1; padding: 14px 16px 6px; margin: 0; }
+    .presets            { order: 2; padding: 6px 16px 4px; }
+    .preview-wrap {
+      order: 3;
+      border-radius: 0;
+      margin: 0;
+      padding: 10px 12px;
+      background: transparent;
+      border-left: none;
+      border-right: none;
+      box-shadow: none;
+    }
+    .mobile-tabs        { order: 4; }
+    .insp-section, #elementPane, #stylePane, #noSelPane, .globals {
+      order: 5;
+      padding: 0 16px;
+    }
+    .status             { order: 6; margin: 6px 16px 96px; }
+    .actions            { display: none; }
+    .mobile-action-bar  { order: 99; }
+
+    /* Header — smaller title, hide subtitle */
+    .header .subtitle   { display: none; }
+    .header .lede       { flex-direction: column; gap: 4px; }
+    .title              { font-size: 17px; }
+    .eyebrow            { font-size: 9px; }
+
+    /* Preview + canvas fill width, cap height */
+    .preview-frame      { border-radius: 14px; max-width: 100%; }
+    .stage-column       { gap: 8px; }
+    .preview-meta       { display: none; }
+    .transport          { padding: 0 6px; }
+    .transport .play-btn { width: 36px; height: 36px; }
+    .transport .play-btn svg { width: 14px; height: 14px; }
+    .scrubber-track     { height: 6px; }
+    .scrubber-thumb     { width: 16px; height: 16px; }
+
+    /* Presets carousel — chip feel */
+    .preset             { min-width: 148px; padding: 10px 12px; border-radius: 14px; }
+    .preset .name       { font-size: 12.5px; }
+    .preset .kicker     { font-size: 9px; }
+
+    /* Inspector sections stack normally */
+    .inspector          { padding: 0; background: transparent; border: none; box-shadow: none; }
+    .divider            { display: none; }
+    .insp-h             { font-size: 11px; padding-top: 4px; }
+    .insp-h .hint       { display: none; }
+
+    /* Tab-switched sections */
+    #elementPane, #stylePane, #noSelPane, .globals {
+      display: none !important;
+    }
+    #elementPane.mob-visible,
+    #stylePane.mob-visible,
+    #layersSection.mob-visible {
+      display: flex !important;
+      flex-direction: column;
+    }
+    #noSelPane.mob-visible { display: block !important; }
+    .globals.mob-visible {
+      display: grid !important;
+    }
+    #layersSection { display: none !important; }
+
+    /* Setup tab shows globals as a proper stacked section (not grid) */
+    .globals {
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding-bottom: 12px;
+    }
+    .globals .card       { padding: 14px 16px; border-radius: 14px; }
+
+    /* Larger inputs on mobile */
+    .textfield, .select, .num-input, .color-row {
+      padding-top: 12px;
+      padding-bottom: 12px;
+      font-size: 14px;
+      border-radius: 12px;
+    }
+    .num-input { padding-top: 10px; padding-bottom: 10px; }
+    .segmented button { padding: 10px 4px; font-size: 11px; }
+    .layer { padding: 12px 14px; border-radius: 12px; }
+
+    /* Mobile tab bar */
+    .mobile-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 6px;
+      margin: 4px 16px 8px;
+      background: var(--elevated);
+      border: 1px solid var(--border-ambient);
+      border-radius: 12px;
+      position: sticky;
+      top: 6px;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .mobile-tabs button {
+      all: unset;
+      flex: 1;
+      text-align: center;
+      padding: 10px 4px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 200ms var(--curve-hero);
+    }
+    .mobile-tabs button.on {
+      background: var(--lav-soft);
+      color: var(--lav);
+      box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.30);
+    }
+
+    /* Fixed bottom action bar — always-on primary CTA */
+    .mobile-action-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      display: flex;
+      gap: 10px;
+      padding: 12px 14px calc(12px + env(safe-area-inset-bottom)) 14px;
+      background: linear-gradient(180deg, transparent, rgba(7, 8, 11, 0.8) 30%, var(--ground) 60%);
+      z-index: 20;
+    }
+    .mobile-action-bar .btn {
+      flex: 1;
+      padding: 14px 12px;
+      border-radius: 14px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      justify-content: center;
+    }
+    .mobile-action-bar .btn.primary {
+      flex: 1.4;
+      box-shadow: 0 6px 20px rgba(189, 158, 255, 0.32);
+    }
+
+    /* Preview overlay play button — larger tap target on mobile
+     * and now shown on active (touch) instead of hover only. */
+    .play-overlay        { opacity: 1; transition: opacity 300ms var(--curve-snap); }
+    .play-overlay.dim    { opacity: 0; }
+    .play-overlay button { width: 60px; height: 60px; }
+
+    /* Fullscreen button larger, always visible on mobile */
+    .fs-btn              { opacity: 1; width: 40px; height: 40px; }
+
+    /* Modal wider corners */
+    .modal               { border-radius: 20px; padding: 20px; }
+  }
+
+  /* Extremely small viewport */
+  @media (max-width: 380px) {
+    .preset              { min-width: 130px; }
+    .title               { font-size: 16px; }
+  }
 </style>
 
 <div class="page">
@@ -775,6 +960,13 @@
     </div>
 
     <div class="presets" id="presets"></div>
+
+    <div class="mobile-tabs" id="mobileTabs">
+      <button data-mtab="layers" class="on">Layers</button>
+      <button data-mtab="element">Element</button>
+      <button data-mtab="style">Style</button>
+      <button data-mtab="setup">Setup</button>
+    </div>
 
     <div class="preview-wrap">
       <div class="stage-column">
@@ -811,7 +1003,7 @@
       </div>
     </div>
 
-    <div class="globals">
+    <div class="globals" id="globalsRow">
       <div class="card">
         <div class="label">Theme</div>
         <div class="segmented bronze" id="segTheme">
@@ -864,7 +1056,7 @@
   </div>
 
   <aside class="inspector">
-    <div class="insp-section">
+    <div class="insp-section" id="layersSection">
       <div class="insp-h"><span>Layers</span><span class="hint">click to select · click canvas to deselect</span></div>
       <div class="layer-list" id="layerList"></div>
     </div>
@@ -941,6 +1133,17 @@
       from the layer list above.
     </div>
   </aside>
+
+  <div class="mobile-action-bar" id="mobileActionBar">
+    <button class="btn" id="btnPreviewMob">
+      <svg viewBox="0 0 24 24"><path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/></svg>
+      Preview
+    </button>
+    <button class="btn primary" id="btnRecMob">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg>
+      Record
+    </button>
+  </div>
 
 </div>
 
@@ -1163,7 +1366,10 @@
     // record-related staging for the save modal
     pendingBlob: null,
     pendingExt: 'webm',
+    mobileTab: 'layers',
   };
+  const mqMobile = window.matchMedia('(max-width: 900px)');
+  function isMobile() { return mqMobile.matches; }
 
   function currentTheme() { return THEMES[state.theme]; }
 
@@ -1217,6 +1423,9 @@
     renderLayers();
     renderInspector();
     drawFrame();
+    // On mobile, jump to the Element tab so the user sees the pane
+    // they just selected without scrolling around.
+    if (isMobile()) setMobileTab('element');
   }
   function deselect() {
     if (!state.selected) return;
@@ -1224,6 +1433,26 @@
     renderLayers();
     renderInspector();
     drawFrame();
+  }
+
+  // Mobile tabs ----------------------------------------------------
+  function setMobileTab(tab) {
+    state.mobileTab = tab;
+    document.querySelectorAll('#mobileTabs button').forEach(b => {
+      b.classList.toggle('on', b.dataset.mtab === tab);
+    });
+    // Map tab → element ids to show
+    const map = {
+      layers:  ['layersSection'],
+      element: state.selected ? ['elementPane'] : ['noSelPane'],
+      style:   state.selected ? ['stylePane']   : ['noSelPane'],
+      setup:   ['globalsRow'],
+    };
+    const visible = map[tab] || [];
+    ['layersSection', 'elementPane', 'stylePane', 'noSelPane', 'globalsRow'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('mob-visible', visible.includes(id));
+    });
   }
 
   // Backdrop -------------------------------------------------------
@@ -1692,7 +1921,6 @@
   }
   function layoutStageForNormal() {
     if (document.fullscreenElement === frame || document.webkitFullscreenElement === frame) {
-      // Let CSS fullscreen rules take over — clear inline styles.
       frame.style.width = '';
       frame.style.height = '';
       stage.style.width = '';
@@ -1700,8 +1928,12 @@
       return;
     }
     const [w, h] = state.sizes[state.aspect];
-    const maxW = Math.min(window.innerWidth - 400, 1100);
-    const maxH = window.innerHeight * 0.55;
+    const mob = isMobile();
+    const sidePad = mob ? 24 : 400;
+    const maxW = mob
+      ? Math.min(window.innerWidth - sidePad, 720)
+      : Math.min(window.innerWidth - sidePad, 1100);
+    const maxH = window.innerHeight * (mob ? 0.44 : 0.55);
     let cssW = maxW;
     let cssH = cssW * (h / w);
     if (cssH > maxH) { cssH = maxH; cssW = cssH * (w / h); }
@@ -1826,6 +2058,10 @@
     document.getElementById('glowWrap').style.display = (kind === 'orb') ? 'flex' : 'none';
     document.getElementById('styleGlow').value = s.glow;
     document.getElementById('styleGlowVal').textContent = s.glow.toFixed(2) + 'x';
+
+    // Re-map mobile tab visibility so a de/select updates which pane
+    // shows under the currently active tab.
+    if (isMobile()) setMobileTab(state.mobileTab);
   }
 
   function rgbaToHex(color) {
@@ -1947,6 +2183,8 @@
     if (t.closest('.actions')) return;
     if (t.closest('.globals')) return;
     if (t.closest('.sel-box')) return;
+    if (t.closest('.mobile-tabs')) return;
+    if (t.closest('.mobile-action-bar')) return;
     deselect();
   });
 
@@ -1969,13 +2207,25 @@
 
   document.getElementById('btnPlay').addEventListener('click', togglePlay);
   document.getElementById('btnOverlayPlay').addEventListener('click', togglePlay);
-  document.getElementById('btnPreview').addEventListener('click', () => { state.time = 0; play(); });
-  document.getElementById('btnRec').addEventListener('click', () => {
+
+  const startPreview = () => { state.time = 0; play(); };
+  const startRecord = () => {
     record().catch((err) => {
       console.warn(err);
       setStatus('Record failed — check console.', null);
       state.recording = false;
     });
+  };
+  document.getElementById('btnPreview').addEventListener('click', startPreview);
+  document.getElementById('btnRec').addEventListener('click', startRecord);
+  document.getElementById('btnPreviewMob').addEventListener('click', startPreview);
+  document.getElementById('btnRecMob').addEventListener('click', startRecord);
+
+  // Mobile tab bar
+  document.getElementById('mobileTabs').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    setMobileTab(b.dataset.mtab);
   });
 
   // Fullscreen -----------------------------------------------------
@@ -2045,4 +2295,8 @@
   applyPreset('signature');
   setTheme('dark');
   setAspect('16:9');
+  setMobileTab('layers');
+  // Re-layout on breakpoint change so the canvas resizes when the
+  // user rotates a phone or resizes a browser across the mobile line.
+  mqMobile.addEventListener('change', () => { setAspect(state.aspect); });
 </script>
