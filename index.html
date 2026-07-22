@@ -42,7 +42,6 @@
   }
   @media (max-width: 1000px) {
     .page { grid-template-columns: 1fr; }
-    .inspector { order: 2; }
   }
   .col-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
@@ -62,6 +61,7 @@
     margin-left: auto;
   }
 
+  /* Presets */
   .presets {
     display: flex;
     gap: 10px;
@@ -136,7 +136,6 @@
   .preview-frame.light { background: #f5f0e5; }
   .preview-frame canvas { display: block; max-width: 100%; max-height: 100%; cursor: pointer; }
 
-  /* Fullscreen sizing — the frame goes to viewport, canvas fills it. */
   .preview-frame:fullscreen,
   .preview-frame:-webkit-full-screen {
     width: 100vw !important;
@@ -146,19 +145,12 @@
     border-radius: 0;
     padding: 0;
     background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
   }
   .preview-frame.light:fullscreen,
   .preview-frame.light:-webkit-full-screen { background: #f5f0e5; }
   .preview-frame:fullscreen canvas,
-  .preview-frame:-webkit-full-screen canvas {
-    max-width: 100vw;
-    max-height: 100vh;
-    width: auto;
-    height: auto;
-  }
+  .preview-frame:-webkit-full-screen canvas { max-width: 100vw; max-height: 100vh; width: auto; height: auto; }
 
   .sel-box {
     position: absolute;
@@ -187,9 +179,7 @@
   .play-overlay {
     position: absolute;
     inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     pointer-events: none;
     opacity: 0;
     transition: opacity 180ms var(--curve-snap);
@@ -197,16 +187,13 @@
   .preview-frame:hover .play-overlay { opacity: 1; }
   .play-overlay button {
     all: unset;
-    width: 68px;
-    height: 68px;
+    width: 68px; height: 68px;
     border-radius: 50%;
     background: rgba(15, 12, 30, 0.72);
     border: 1px solid rgba(189, 158, 255, 0.32);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     pointer-events: auto;
     color: var(--text-primary);
@@ -220,45 +207,17 @@
   }
   .play-overlay button svg { width: 26px; height: 26px; }
 
-  /* Fullscreen button — bottom-right corner of preview */
   .fs-btn {
     position: absolute;
     bottom: 12px;
     right: 12px;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    background: rgba(15, 12, 30, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-primary);
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 180ms var(--curve-snap), background 180ms var(--curve-hero);
-    pointer-events: auto;
-    z-index: 4;
-    all: unset;
-    box-sizing: border-box;
-  }
-  .fs-btn { all: unset; }
-  .fs-btn {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    width: 34px;
-    height: 34px;
+    width: 34px; height: 34px;
     border-radius: 8px;
     background: rgba(15, 12, 30, 0.65);
     border: 1px solid rgba(255, 255, 255, 0.12);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     color: var(--text-primary);
     cursor: pointer;
     opacity: 0;
@@ -287,51 +246,11 @@
   }
   .transport .play-btn:hover { background: rgba(189, 158, 255, 0.22); border-color: rgba(189, 158, 255, 0.55); }
   .transport .play-btn svg { width: 12px; height: 12px; }
-  .scrubber-wrap {
-    flex: 1;
-    height: 24px;
-    display: flex; align-items: center;
-    cursor: pointer;
-    position: relative;
-  }
-  .scrubber-track {
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 999px;
-    position: relative;
-    overflow: hidden;
-  }
-  .scrubber-fill {
-    position: absolute;
-    inset: 0 auto 0 0;
-    background: linear-gradient(90deg, var(--lav), var(--bronze));
-    border-radius: 999px;
-    width: 0%;
-    transition: width 100ms linear;
-  }
-  .scrubber-thumb {
-    position: absolute;
-    top: 50%;
-    width: 12px; height: 12px;
-    border-radius: 50%;
-    background: white;
-    border: 2px solid var(--lav);
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 8px rgba(189, 158, 255, 0.5);
-    left: 0%;
-    transition: left 100ms linear;
-    pointer-events: none;
-  }
-  .time {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    letter-spacing: 0.10em;
-    color: var(--text-secondary);
-    font-variant-numeric: tabular-nums;
-    min-width: 78px;
-    text-align: right;
-  }
+  .scrubber-wrap { flex: 1; height: 24px; display: flex; align-items: center; cursor: pointer; position: relative; }
+  .scrubber-track { width: 100%; height: 4px; background: rgba(255, 255, 255, 0.06); border-radius: 999px; position: relative; overflow: hidden; }
+  .scrubber-fill { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, var(--lav), var(--bronze)); border-radius: 999px; width: 0%; transition: width 100ms linear; }
+  .scrubber-thumb { position: absolute; top: 50%; width: 12px; height: 12px; border-radius: 50%; background: white; border: 2px solid var(--lav); transform: translate(-50%, -50%); box-shadow: 0 0 8px rgba(189, 158, 255, 0.5); left: 0%; transition: left 100ms linear; pointer-events: none; }
+  .time { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.10em; color: var(--text-secondary); font-variant-numeric: tabular-nums; min-width: 78px; text-align: right; }
   .preview-meta {
     display: flex;
     gap: 16px;
@@ -345,11 +264,7 @@
   }
   .preview-meta .value { color: var(--text-secondary); margin-left: 4px; }
 
-  .globals {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-  }
+  .globals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   @media (max-width: 900px) { .globals { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 480px) { .globals { grid-template-columns: 1fr; } }
   .card {
@@ -357,9 +272,7 @@
     border: 1px solid var(--border-ambient);
     border-radius: 12px;
     padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: flex; flex-direction: column; gap: 8px;
   }
   .card .label {
     font-family: var(--font-mono);
@@ -396,11 +309,6 @@
     color: var(--lav);
     box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.30);
   }
-  .segmented button.disabled {
-    opacity: 0.32;
-    cursor: not-allowed;
-  }
-  .segmented button.disabled:hover { background: transparent; color: var(--text-secondary); }
   .segmented.bronze button.on {
     background: var(--bronze-soft);
     color: var(--bronze);
@@ -410,9 +318,7 @@
   .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
   .btn {
     all: unset;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    display: inline-flex; align-items: center; gap: 8px;
     padding: 10px 16px;
     border-radius: 10px;
     font-family: var(--font-mono);
@@ -454,37 +360,20 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     min-height: 36px;
   }
-  .status .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--text-muted);
-    box-shadow: 0 0 4px var(--text-muted);
-    flex-shrink: 0;
-  }
-  .status.rec .dot {
-    background: rgb(248, 113, 113);
-    box-shadow: 0 0 8px rgba(248, 113, 113, 0.8);
-    animation: rec-blink 1s var(--curve-hero) infinite;
-  }
-  @keyframes rec-blink {
-    0%, 60% { opacity: 1; }
-    80%, 100% { opacity: 0.35; }
-  }
+  .status .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); box-shadow: 0 0 4px var(--text-muted); flex-shrink: 0; }
+  .status.rec .dot { background: rgb(248, 113, 113); box-shadow: 0 0 8px rgba(248, 113, 113, 0.8); animation: rec-blink 1s var(--curve-hero) infinite; }
+  @keyframes rec-blink { 0%, 60% { opacity: 1; } 80%, 100% { opacity: 0.35; } }
   .status.ok .dot { background: rgb(74, 222, 128); box-shadow: 0 0 6px rgba(74, 222, 128, 0.7); }
 
-  /* Inspector */
   .inspector {
     background: var(--elevated);
     border: 1px solid var(--border-ambient);
     border-radius: 18px;
     padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    display: flex; flex-direction: column; gap: 16px;
     height: fit-content;
     position: sticky;
     top: 24px;
@@ -496,9 +385,7 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--text-muted);
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    display: flex; justify-content: space-between; align-items: baseline;
   }
   .insp-h .hint {
     color: var(--text-muted);
@@ -517,9 +404,7 @@
   .layer-list { display: flex; flex-direction: column; gap: 4px; }
   .layer {
     all: unset;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     padding: 9px 12px;
     border-radius: 8px;
     cursor: pointer;
@@ -537,15 +422,7 @@
   .layer[data-kind="wordmark"] .kind-dot { background: var(--text-primary); }
   .layer[data-kind="tagline"] .kind-dot { background: var(--text-secondary); }
   .layer[data-kind="url"] .kind-dot { background: var(--bronze); }
-  .layer .name {
-    font-size: 12.5px;
-    color: var(--text-primary);
-    flex: 1;
-    min-width: 0;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
+  .layer .name { font-size: 12.5px; color: var(--text-primary); flex: 1; min-width: 0; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
   .layer .eff {
     font-family: var(--font-mono);
     font-size: 9.5px;
@@ -591,8 +468,7 @@
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
   .textfield {
-    display: flex;
-    align-items: center;
+    display: flex; align-items: center;
     background: rgba(0, 0, 0, 0.32);
     border: 1px solid var(--border-ambient);
     border-radius: 8px;
@@ -600,41 +476,20 @@
     font-size: 12.5px;
     color: var(--text-primary);
   }
-  .textfield input {
-    all: unset;
-    flex: 1;
-    min-width: 0;
-    font-family: var(--font-sans);
-  }
+  .textfield input { all: unset; flex: 1; min-width: 0; font-family: var(--font-sans); }
   .textfield input::placeholder { color: var(--text-muted); }
 
   .color-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex; align-items: center; gap: 8px;
     background: rgba(0, 0, 0, 0.32);
     border: 1px solid var(--border-ambient);
     border-radius: 8px;
     padding: 5px 8px 5px 5px;
   }
-  .color-row input[type="color"] {
-    all: unset;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    cursor: pointer;
-    overflow: hidden;
-    border: 1px solid var(--border-ambient);
-  }
+  .color-row input[type="color"] { all: unset; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; overflow: hidden; border: 1px solid var(--border-ambient); }
   .color-row input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
   .color-row input[type="color"]::-webkit-color-swatch { border: none; border-radius: 5px; }
-  .color-row .hex {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-primary);
-    flex: 1;
-    letter-spacing: 0.06em;
-  }
+  .color-row .hex { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); flex: 1; letter-spacing: 0.06em; }
   .color-row button {
     all: unset;
     font-family: var(--font-mono);
@@ -660,16 +515,13 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* ---------- Modal ---------- */
+  /* ---------- Save modal ---------- */
   .modal-backdrop {
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: rgba(4, 4, 8, 0.72);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     z-index: 100;
     padding: 20px;
     opacity: 0;
@@ -684,49 +536,24 @@
     padding: 24px;
     width: min(460px, 100%);
     max-width: 100%;
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.02),
-      0 30px 60px -20px rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02), 0 30px 60px -20px rgba(0, 0, 0, 0.7);
+    display: flex; flex-direction: column; gap: 16px;
     transform: translateY(8px) scale(0.98);
     transition: transform 220ms var(--curve-hero);
   }
   .modal-backdrop.on .modal { transform: translateY(0) scale(1); }
-  .modal h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--text-primary);
-    letter-spacing: -0.005em;
-  }
-  .modal .sub {
-    color: var(--text-secondary);
-    font-size: 12.5px;
-    line-height: 1.5;
-    margin-top: -6px;
-  }
+  .modal h3 { margin: 0; font-size: 15px; font-weight: 500; color: var(--text-primary); letter-spacing: -0.005em; }
+  .modal .sub { color: var(--text-secondary); font-size: 12.5px; line-height: 1.5; margin-top: -6px; }
   .modal .fname-row {
-    display: flex;
-    align-items: stretch;
+    display: flex; align-items: stretch;
     background: rgba(0, 0, 0, 0.32);
     border: 1px solid var(--border-ambient);
     border-radius: 10px;
     overflow: hidden;
   }
-  .modal .fname-row input {
-    all: unset;
-    flex: 1;
-    padding: 10px 12px;
-    font-family: var(--font-sans);
-    font-size: 13px;
-    color: var(--text-primary);
-    min-width: 0;
-  }
+  .modal .fname-row input { all: unset; flex: 1; padding: 10px 12px; font-family: var(--font-sans); font-size: 13px; color: var(--text-primary); min-width: 0; }
   .modal .fname-row .ext {
-    display: flex;
-    align-items: center;
+    display: flex; align-items: center;
     padding: 10px 12px;
     font-family: var(--font-mono);
     font-size: 12px;
@@ -758,18 +585,25 @@
   }
 
   /* ==============================================================
-   * Mobile — feels like a native app on phones.
+   * Mobile — CapCut-like editor
    *
-   * Layout collapses to a single column with the canvas dominating
-   * the viewport, presets carousel underneath, tab bar to switch
-   * between Layers / Element / Style / Setup, and a fixed bottom
-   * action bar for Preview + Record & Download.
+   * Layout: top bar (title + Export), full-bleed preview + transport,
+   * horizontal timeline strip with color-coded clip bars per element,
+   * bottom icon tool bar (Presets / Layers / Element / Style / Setup).
+   * Tapping a tool slides up a bottom sheet drawer with the controls
+   * for that tool. Selecting an element moves the playhead / marks
+   * the clip; the tool bar is where you go to actually edit it.
    * ============================================================== */
-
-  .mobile-tabs { display: none; }
-  .mobile-action-bar { display: none; }
+  .mob-top-bar   { display: none; }
+  .mob-toolbar   { display: none; }
+  .timeline-strip { display: none; }
+  .drawer,
+  .drawer-scrim { display: none; }
 
   @media (max-width: 900px) {
+    body {
+      padding-bottom: calc(84px + env(safe-area-inset-bottom));
+    }
     .page {
       display: flex;
       flex-direction: column;
@@ -778,81 +612,315 @@
       max-width: 100%;
       min-height: 100dvh;
     }
-    /* Let both columns' children participate in the outer flex order */
     .col-main, .inspector { display: contents; }
 
-    /* Ordering — top to bottom on mobile */
-    .header             { order: 1; padding: 14px 16px 6px; margin: 0; }
-    .presets            { order: 2; padding: 6px 16px 4px; }
+    /* Kill desktop-only UI on phones. Inspector sections stay in the
+     * DOM because the drawer needs them to portal in. */
+    .header       { display: none; }
+    .presets      { display: none; }
+    .actions      { display: none; }
+    .status       { display: none; }
+    .divider      { display: none; }
+    .insp-h       { display: none; }
+    .inspector    { padding: 0; background: transparent; border: none; box-shadow: none; }
+    .globals      { display: none; }
+
+    #layersSection, #elementPane, #stylePane, #noSelPane {
+      display: none;
+    }
+
+    /* Top bar */
+    .mob-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+      background: rgba(7, 8, 11, 0.85);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      border-bottom: 1px solid var(--border-ambient);
+    }
+    .mob-top-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+    .mob-top-title span { color: var(--text-muted); margin-left: 6px; }
+    .mob-export {
+      all: unset;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--lav);
+      color: rgb(20, 18, 30);
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(189, 158, 255, 0.42);
+    }
+    .mob-export svg { width: 12px; height: 12px; }
+
+    /* Preview — main canvas, no bordered card look */
     .preview-wrap {
-      order: 3;
-      border-radius: 0;
-      margin: 0;
-      padding: 10px 12px;
+      order: 2;
       background: transparent;
-      border-left: none;
-      border-right: none;
+      border-radius: 0;
+      padding: 12px 12px 10px;
+      border: none;
       box-shadow: none;
+      margin: 0;
     }
-    .mobile-tabs        { order: 4; }
-    .insp-section, #elementPane, #stylePane, #noSelPane, .globals {
-      order: 5;
-      padding: 0 16px;
-    }
-    .status             { order: 6; margin: 6px 16px 96px; }
-    .actions            { display: none; }
-    .mobile-action-bar  { order: 99; }
-
-    /* Header — smaller title, hide subtitle */
-    .header .subtitle   { display: none; }
-    .header .lede       { flex-direction: column; gap: 4px; }
-    .title              { font-size: 17px; }
-    .eyebrow            { font-size: 9px; }
-
-    /* Preview + canvas fill width, cap height */
-    .preview-frame      { border-radius: 14px; max-width: 100%; }
-    .stage-column       { gap: 8px; }
-    .preview-meta       { display: none; }
-    .transport          { padding: 0 6px; }
+    .stage-column { gap: 8px; }
+    .preview-frame { border-radius: 14px; max-width: 100%; }
+    .preview-meta { display: none; }
+    .transport    { padding: 0 6px; }
     .transport .play-btn { width: 36px; height: 36px; }
     .transport .play-btn svg { width: 14px; height: 14px; }
-    .scrubber-track     { height: 6px; }
-    .scrubber-thumb     { width: 16px; height: 16px; }
+    .scrubber-track { height: 6px; }
+    .scrubber-thumb { width: 16px; height: 16px; }
+    .play-overlay   { opacity: 1; }
+    .play-overlay button { width: 60px; height: 60px; }
+    .fs-btn         { opacity: 1; width: 40px; height: 40px; }
 
-    /* Presets carousel — chip feel */
-    .preset             { min-width: 148px; padding: 10px 12px; border-radius: 14px; }
-    .preset .name       { font-size: 12.5px; }
-    .preset .kicker     { font-size: 9px; }
-
-    /* Inspector sections stack normally */
-    .inspector          { padding: 0; background: transparent; border: none; box-shadow: none; }
-    .divider            { display: none; }
-    .insp-h             { font-size: 11px; padding-top: 4px; }
-    .insp-h .hint       { display: none; }
-
-    /* Tab-switched sections */
-    #elementPane, #stylePane, #noSelPane, .globals {
-      display: none !important;
+    /* Timeline strip */
+    .timeline-strip {
+      display: block;
+      order: 3;
+      padding: 10px 14px 12px;
+      background: rgba(14, 16, 21, 0.6);
+      border-top: 1px solid var(--border-ambient);
+      border-bottom: 1px solid var(--border-ambient);
+      position: relative;
     }
-    #elementPane.mob-visible,
-    #stylePane.mob-visible,
-    #layersSection.mob-visible {
+    .tl-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .tl-header .tl-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .tl-header .tl-dur {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+    .tl-tracks {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+    .tl-track {
+      position: relative;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .tl-clip {
+      all: unset;
+      position: absolute;
+      top: 0; bottom: 0;
+      display: flex; align-items: center;
+      padding: 0 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      cursor: pointer;
+      overflow: hidden;
+      white-space: nowrap;
+      min-width: 22px;
+      transition: box-shadow 160ms var(--curve-snap);
+    }
+    .tl-clip[data-kind="orb"]      { background: linear-gradient(90deg, rgba(210,155,100,0.7), rgba(189,158,255,0.7)); }
+    .tl-clip[data-kind="wordmark"] { background: linear-gradient(90deg, rgba(189,158,255,0.75), rgba(155,118,220,0.75)); }
+    .tl-clip[data-kind="tagline"]  { background: linear-gradient(90deg, rgba(110,196,232,0.7), rgba(90,180,220,0.7)); }
+    .tl-clip[data-kind="url"]      { background: linear-gradient(90deg, rgba(255,184,107,0.75), rgba(230,150,80,0.75)); }
+    .tl-clip.on {
+      box-shadow: 0 0 0 2px white, 0 0 0 3px rgba(0,0,0,0.6);
+      z-index: 2;
+    }
+    .tl-playhead {
+      position: absolute;
+      top: -4px; bottom: -4px;
+      width: 2px;
+      background: white;
+      pointer-events: none;
+      z-index: 3;
+      box-shadow: 0 0 6px rgba(255,255,255,0.8);
+    }
+    .tl-playhead::before {
+      content: '';
+      position: absolute;
+      top: -4px; left: -5px;
+      width: 12px; height: 8px;
+      background: white;
+      border-radius: 2px;
+    }
+
+    /* Tool bar */
+    .mob-toolbar {
+      display: flex;
+      gap: 4px;
+      padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(14, 16, 21, 0.94);
+      -webkit-backdrop-filter: blur(14px);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border-ambient);
+      z-index: 15;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .mob-toolbar::-webkit-scrollbar { display: none; }
+    .mob-toolbar button {
+      all: unset;
+      flex: 1;
+      min-width: 62px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 4px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 160ms var(--curve-snap);
+    }
+    .mob-toolbar button:active { background: rgba(255, 255, 255, 0.06); transform: scale(0.96); }
+    .mob-toolbar button.on { color: var(--lav); background: rgba(189, 158, 255, 0.08); }
+    .mob-toolbar button svg {
+      width: 22px; height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .mob-toolbar button span {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .mob-toolbar button.disabled { opacity: 0.32; pointer-events: none; }
+
+    /* Drawer */
+    .drawer-scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.42);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 240ms var(--curve-snap);
+    }
+    .drawer-scrim.on { opacity: 1; pointer-events: auto; }
+    .drawer {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      max-height: 68vh;
+      background: var(--elevated);
+      border-top: 1px solid var(--border-ambient);
+      border-radius: 20px 20px 0 0;
+      padding: 6px 16px calc(20px + env(safe-area-inset-bottom));
+      z-index: 25;
+      transform: translateY(105%);
+      transition: transform 340ms var(--curve-hero);
+      box-shadow: 0 -14px 40px rgba(0, 0, 0, 0.5);
+    }
+    .drawer.on { transform: translateY(0); }
+    .drawer-handle {
+      width: 42px; height: 4px;
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 2px;
+      margin: 4px auto 12px;
+      flex-shrink: 0;
+    }
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-ambient);
+      margin-bottom: 14px;
+      flex-shrink: 0;
+    }
+    .drawer-title { font-size: 15px; font-weight: 500; color: var(--text-primary); letter-spacing: -0.005em; }
+    .drawer-done {
+      all: unset;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--lav);
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: var(--lav-soft);
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* When sections are inside the drawer they should show */
+    #layersSection.in-drawer,
+    #elementPane.in-drawer,
+    #stylePane.in-drawer,
+    #noSelPane.in-drawer,
+    #presets.in-drawer,
+    #globalsRow.in-drawer {
       display: flex !important;
       flex-direction: column;
+      gap: 12px;
     }
-    #noSelPane.mob-visible { display: block !important; }
-    .globals.mob-visible {
+    #presets.in-drawer {
+      display: flex !important;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #presets.in-drawer .preset {
+      min-width: 100%;
+      width: 100%;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+    }
+    #globalsRow.in-drawer {
       display: grid !important;
-    }
-    #layersSection { display: none !important; }
-
-    /* Setup tab shows globals as a proper stacked section (not grid) */
-    .globals {
       grid-template-columns: 1fr;
-      gap: 10px;
-      padding-bottom: 12px;
+      gap: 12px;
     }
-    .globals .card       { padding: 14px 16px; border-radius: 14px; }
+    #noSelPane.in-drawer { display: block !important; }
 
     /* Larger inputs on mobile */
     .textfield, .select, .num-input, .color-row {
@@ -862,86 +930,29 @@
       border-radius: 12px;
     }
     .num-input { padding-top: 10px; padding-bottom: 10px; }
-    .segmented button { padding: 10px 4px; font-size: 11px; }
-    .layer { padding: 12px 14px; border-radius: 12px; }
-
-    /* Mobile tab bar */
-    .mobile-tabs {
-      display: flex;
-      gap: 4px;
-      padding: 6px;
-      margin: 4px 16px 8px;
-      background: var(--elevated);
-      border: 1px solid var(--border-ambient);
-      border-radius: 12px;
-      position: sticky;
-      top: 6px;
-      z-index: 10;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .mobile-tabs button {
-      all: unset;
-      flex: 1;
-      text-align: center;
-      padding: 10px 4px;
-      border-radius: 8px;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 200ms var(--curve-hero);
-    }
-    .mobile-tabs button.on {
-      background: var(--lav-soft);
-      color: var(--lav);
-      box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.30);
-    }
-
-    /* Fixed bottom action bar — always-on primary CTA */
-    .mobile-action-bar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      display: flex;
-      gap: 10px;
-      padding: 12px 14px calc(12px + env(safe-area-inset-bottom)) 14px;
-      background: linear-gradient(180deg, transparent, rgba(7, 8, 11, 0.8) 30%, var(--ground) 60%);
-      z-index: 20;
-    }
-    .mobile-action-bar .btn {
-      flex: 1;
-      padding: 14px 12px;
-      border-radius: 14px;
-      font-size: 11px;
-      letter-spacing: 0.18em;
-      justify-content: center;
-    }
-    .mobile-action-bar .btn.primary {
-      flex: 1.4;
-      box-shadow: 0 6px 20px rgba(189, 158, 255, 0.32);
-    }
-
-    /* Preview overlay play button — larger tap target on mobile
-     * and now shown on active (touch) instead of hover only. */
-    .play-overlay        { opacity: 1; transition: opacity 300ms var(--curve-snap); }
-    .play-overlay.dim    { opacity: 0; }
-    .play-overlay button { width: 60px; height: 60px; }
-
-    /* Fullscreen button larger, always visible on mobile */
-    .fs-btn              { opacity: 1; width: 40px; height: 40px; }
-
-    /* Modal wider corners */
-    .modal               { border-radius: 20px; padding: 20px; }
+    .segmented button { padding: 12px 4px; font-size: 11px; }
+    .layer { padding: 14px 16px; border-radius: 12px; }
   }
 
-  /* Extremely small viewport */
   @media (max-width: 380px) {
-    .preset              { min-width: 130px; }
-    .title               { font-size: 16px; }
+    .mob-toolbar button { min-width: 56px; padding: 8px 3px; }
+    .mob-toolbar button svg { width: 20px; height: 20px; }
+    .tl-clip { font-size: 9px; padding: 0 5px; }
   }
 </style>
+
+<!-- =============================================================
+     Mobile top bar (visible only under 900px)
+     ============================================================= -->
+<div class="mob-top-bar">
+  <div class="mob-top-title">Travis <span>Studio</span></div>
+  <button class="mob-export" id="mobExport">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/>
+    </svg>
+    Export
+  </button>
+</div>
 
 <div class="page">
 
@@ -961,13 +972,6 @@
 
     <div class="presets" id="presets"></div>
 
-    <div class="mobile-tabs" id="mobileTabs">
-      <button data-mtab="layers" class="on">Layers</button>
-      <button data-mtab="element">Element</button>
-      <button data-mtab="style">Style</button>
-      <button data-mtab="setup">Setup</button>
-    </div>
-
     <div class="preview-wrap">
       <div class="stage-column">
         <div class="preview-frame" id="frame">
@@ -979,9 +983,7 @@
             </button>
           </div>
           <button class="fs-btn" id="btnFs" aria-label="Fullscreen">
-            <svg viewBox="0 0 24 24" id="fsIcon">
-              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
-            </svg>
+            <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
           </button>
         </div>
       </div>
@@ -1001,6 +1003,15 @@
         <div>native<span class="value" id="metaSize">1920 × 1080</span></div>
         <div>format<span class="value" id="metaFormat">webm</span></div>
       </div>
+    </div>
+
+    <!-- Timeline strip (mobile only) -->
+    <div class="timeline-strip" id="timelineStrip">
+      <div class="tl-header">
+        <div class="tl-title">Timeline</div>
+        <div class="tl-dur" id="tlDur">5.0s</div>
+      </div>
+      <div class="tl-tracks" id="tlTracks"></div>
     </div>
 
     <div class="globals" id="globalsRow">
@@ -1134,17 +1145,44 @@
     </div>
   </aside>
 
-  <div class="mobile-action-bar" id="mobileActionBar">
-    <button class="btn" id="btnPreviewMob">
-      <svg viewBox="0 0 24 24"><path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/></svg>
-      Preview
-    </button>
-    <button class="btn primary" id="btnRecMob">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg>
-      Record
-    </button>
-  </div>
+</div>
 
+<!-- =============================================================
+     Mobile bottom tool bar (visible only under 900px)
+     Icons open a bottom-sheet drawer with the relevant controls.
+     ============================================================= -->
+<div class="mob-toolbar" id="mobToolbar">
+  <button data-tool="presets">
+    <svg viewBox="0 0 24 24"><path d="M12 2l2.4 6.5L21 10l-5 4.6L17.6 22 12 18.3 6.4 22l1.6-7.4L3 10l6.6-1.5L12 2z"/></svg>
+    <span>Presets</span>
+  </button>
+  <button data-tool="layers">
+    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 12l10 5 10-5M2 17l10 5 10-5"/></svg>
+    <span>Layers</span>
+  </button>
+  <button data-tool="element">
+    <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    <span>Edit</span>
+  </button>
+  <button data-tool="style">
+    <svg viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10a10 10 0 00-10-10C6.477 2 2 6.477 2 12s4.477 10 10 10z"/><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"/><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"/><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"/><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"/></svg>
+    <span>Style</span>
+  </button>
+  <button data-tool="setup">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+    <span>Setup</span>
+  </button>
+</div>
+
+<!-- Drawer (bottom sheet) -->
+<div class="drawer-scrim" id="drawerScrim"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitle">Style</div>
+    <button class="drawer-done" id="drawerDone">Done</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
 </div>
 
 <!-- Save / rename modal -->
@@ -1180,55 +1218,37 @@
   const THEMES = {
     dark: {
       ground: '#07080b',
-      lavBloomInner: 'rgba(124, 92, 255, 0.20)',
-      lavBloomMid:   'rgba(124, 92, 255, 0.06)',
-      bronzeInner:   'rgba(210, 155, 100, 0.16)',
-      bronzeMid:     'rgba(210, 155, 100, 0.05)',
-      grid:          'rgba(189, 158, 255, 0.045)',
-      orbOuter1:     'rgba(189, 158, 255, 0.42)',
-      orbOuter2:     'rgba(189, 158, 255, 0.16)',
-      orbBronze:     'rgba(210, 155, 100, 0.34)',
+      lavBloomInner: 'rgba(124, 92, 255, 0.20)', lavBloomMid: 'rgba(124, 92, 255, 0.06)',
+      bronzeInner: 'rgba(210, 155, 100, 0.16)', bronzeMid: 'rgba(210, 155, 100, 0.05)',
+      grid: 'rgba(189, 158, 255, 0.045)',
+      orbOuter1: 'rgba(189, 158, 255, 0.42)', orbOuter2: 'rgba(189, 158, 255, 0.16)',
+      orbBronze: 'rgba(210, 155, 100, 0.34)',
       orbBody: [
-        [0.00, 'rgba(255, 255, 255, 0.85)'],
-        [0.20, 'rgba(230, 210, 255, 0.55)'],
-        [0.55, 'rgba(210, 155, 100, 0.72)'],
-        [0.85, 'rgba(155, 118, 220, 0.85)'],
+        [0.00, 'rgba(255, 255, 255, 0.85)'], [0.20, 'rgba(230, 210, 255, 0.55)'],
+        [0.55, 'rgba(210, 155, 100, 0.72)'], [0.85, 'rgba(155, 118, 220, 0.85)'],
         [1.00, 'rgba(90, 62, 160, 0.95)'],
       ],
-      orbRimDark: 'rgba(50, 40, 90, 1)',
-      orbHighlight: 'rgba(255, 255, 255, 0.55)',
-      wordmark:       'rgba(236, 236, 241, 0.96)',
-      wordmarkShadow: 'rgba(189, 158, 255, 0.55)',
-      tagline: 'rgba(236, 236, 241, 0.62)',
-      url:     'rgba(210, 155, 100, 0.82)',
-      urlUnder:'rgba(210, 155, 100, 0.55)',
-      cursor:  'rgba(236, 236, 241, 0.85)',
+      orbRimDark: 'rgba(50, 40, 90, 1)', orbHighlight: 'rgba(255, 255, 255, 0.55)',
+      wordmark: 'rgba(236, 236, 241, 0.96)', wordmarkShadow: 'rgba(189, 158, 255, 0.55)',
+      tagline: 'rgba(236, 236, 241, 0.62)', url: 'rgba(210, 155, 100, 0.82)',
+      urlUnder: 'rgba(210, 155, 100, 0.55)', cursor: 'rgba(236, 236, 241, 0.85)',
     },
     light: {
       ground: '#f5f0e5',
-      lavBloomInner: 'rgba(124, 92, 220, 0.14)',
-      lavBloomMid:   'rgba(124, 92, 220, 0.03)',
-      bronzeInner:   'rgba(190, 118, 60, 0.12)',
-      bronzeMid:     'rgba(190, 118, 60, 0.03)',
-      grid:          'rgba(45, 30, 12, 0.06)',
-      orbOuter1:     'rgba(124, 92, 220, 0.28)',
-      orbOuter2:     'rgba(124, 92, 220, 0.09)',
-      orbBronze:     'rgba(210, 155, 100, 0.30)',
+      lavBloomInner: 'rgba(124, 92, 220, 0.14)', lavBloomMid: 'rgba(124, 92, 220, 0.03)',
+      bronzeInner: 'rgba(190, 118, 60, 0.12)', bronzeMid: 'rgba(190, 118, 60, 0.03)',
+      grid: 'rgba(45, 30, 12, 0.06)',
+      orbOuter1: 'rgba(124, 92, 220, 0.28)', orbOuter2: 'rgba(124, 92, 220, 0.09)',
+      orbBronze: 'rgba(210, 155, 100, 0.30)',
       orbBody: [
-        [0.00, 'rgba(255, 255, 255, 0.98)'],
-        [0.20, 'rgba(240, 226, 255, 0.72)'],
-        [0.55, 'rgba(210, 155, 100, 0.78)'],
-        [0.85, 'rgba(140, 100, 210, 0.92)'],
+        [0.00, 'rgba(255, 255, 255, 0.98)'], [0.20, 'rgba(240, 226, 255, 0.72)'],
+        [0.55, 'rgba(210, 155, 100, 0.78)'], [0.85, 'rgba(140, 100, 210, 0.92)'],
         [1.00, 'rgba(80, 52, 150, 0.98)'],
       ],
-      orbRimDark: 'rgba(70, 50, 110, 1)',
-      orbHighlight: 'rgba(255, 255, 255, 0.85)',
-      wordmark:       'rgba(28, 22, 16, 0.95)',
-      wordmarkShadow: 'rgba(190, 118, 60, 0.42)',
-      tagline: 'rgba(28, 22, 16, 0.62)',
-      url:     'rgb(168, 108, 46)',
-      urlUnder:'rgba(168, 108, 46, 0.55)',
-      cursor:  'rgba(28, 22, 16, 0.85)',
+      orbRimDark: 'rgba(70, 50, 110, 1)', orbHighlight: 'rgba(255, 255, 255, 0.85)',
+      wordmark: 'rgba(28, 22, 16, 0.95)', wordmarkShadow: 'rgba(190, 118, 60, 0.42)',
+      tagline: 'rgba(28, 22, 16, 0.62)', url: 'rgb(168, 108, 46)',
+      urlUnder: 'rgba(168, 108, 46, 0.55)', cursor: 'rgba(28, 22, 16, 0.85)',
     },
   };
 
@@ -1318,27 +1338,16 @@
   const ELEMENT_KINDS = ['orb', 'wordmark', 'tagline', 'url'];
   const ELEMENT_NAMES = { orb: 'Orb', wordmark: 'Wordmark', tagline: 'Tagline', url: 'URL' };
 
-  // MP4 support detection ------------------------------------------
-  //
-  // Only Safari supports MP4 via MediaRecorder today. Everywhere else
-  // the codec test returns false, and we can't just silently swap to
-  // WebM because the user asked for MP4. We surface a copyable ffmpeg
-  // one-liner in the save modal so they can convert in one command.
   const MP4_MIMES = [
     'video/mp4;codecs=avc1.42E01E',
     'video/mp4;codecs=avc1.4d0028',
     'video/mp4;codecs=avc1',
     'video/mp4',
   ];
-  const WEBM_MIMES = [
-    'video/webm;codecs=vp9',
-    'video/webm;codecs=vp8',
-    'video/webm',
-  ];
+  const WEBM_MIMES = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
   const supportedMimeFor = (fmt) => (fmt === 'mp4' ? MP4_MIMES : WEBM_MIMES).find(m => MediaRecorder.isTypeSupported(m));
   const MP4_NATIVE_OK = !!supportedMimeFor('mp4');
 
-  // State ----------------------------------------------------------
   const stage = document.getElementById('stage');
   const frame = document.getElementById('frame');
   const ctx = stage.getContext('2d');
@@ -1363,15 +1372,13 @@
       '1:1':  [1080, 1080],
     },
     layerBoxes: {},
-    // record-related staging for the save modal
     pendingBlob: null,
     pendingExt: 'webm',
-    mobileTab: 'layers',
+    drawerTool: null,
   };
   const mqMobile = window.matchMedia('(max-width: 900px)');
-  function isMobile() { return mqMobile.matches; }
-
-  function currentTheme() { return THEMES[state.theme]; }
+  const isMobile = () => mqMobile.matches;
+  const currentTheme = () => THEMES[state.theme];
 
   function ensureStyle(el) {
     if (!el.style) el.style = defaultOverrides();
@@ -1404,7 +1411,7 @@
     scaleTimings(clone, factor);
     state.elements = clone;
     state.time = 0;
-    renderPresets(); renderLayers(); renderInspector(); drawFrame();
+    renderPresets(); renderLayers(); renderInspector(); renderTimeline(); drawFrame();
     setStatus('Preset · ' + p.name + ' — fit to ' + state.duration + 's', null);
   }
   function setDuration(d) {
@@ -1414,89 +1421,57 @@
     }
     state.duration = d;
     if (state.time > d) state.time = d;
-    renderInspector(); drawFrame();
+    renderInspector(); renderTimeline(); drawFrame();
   }
 
-  // Selection ------------------------------------------------------
+  // Selection
   function selectKind(kind) {
     state.selected = kind;
     renderLayers();
     renderInspector();
+    renderTimeline();
     drawFrame();
-    // On mobile, jump to the Element tab so the user sees the pane
-    // they just selected without scrolling around.
-    if (isMobile()) setMobileTab('element');
+    updateToolbarEnabled();
   }
   function deselect() {
     if (!state.selected) return;
     state.selected = null;
     renderLayers();
     renderInspector();
+    renderTimeline();
     drawFrame();
+    updateToolbarEnabled();
   }
 
-  // Mobile tabs ----------------------------------------------------
-  function setMobileTab(tab) {
-    state.mobileTab = tab;
-    document.querySelectorAll('#mobileTabs button').forEach(b => {
-      b.classList.toggle('on', b.dataset.mtab === tab);
-    });
-    // Map tab → element ids to show
-    const map = {
-      layers:  ['layersSection'],
-      element: state.selected ? ['elementPane'] : ['noSelPane'],
-      style:   state.selected ? ['stylePane']   : ['noSelPane'],
-      setup:   ['globalsRow'],
-    };
-    const visible = map[tab] || [];
-    ['layersSection', 'elementPane', 'stylePane', 'noSelPane', 'globalsRow'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.classList.toggle('mob-visible', visible.includes(id));
-    });
-  }
-
-  // Backdrop -------------------------------------------------------
+  // Backdrop
   function drawBackdrop() {
     const T = currentTheme();
     const w = stage.width, h = stage.height;
     const t = state.time;
     const fade = clamp01(t / 0.6);
-
-    ctx.fillStyle = T.ground;
-    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = T.ground; ctx.fillRect(0, 0, w, h);
     ctx.globalAlpha = fade;
-
     let g = ctx.createRadialGradient(w * 0.18, h * -0.05, 0, w * 0.18, h * -0.05, Math.max(w, h) * 0.65);
-    g.addColorStop(0, T.lavBloomInner);
-    g.addColorStop(0.55, T.lavBloomMid);
-    g.addColorStop(1, 'rgba(124, 92, 255, 0)');
+    g.addColorStop(0, T.lavBloomInner); g.addColorStop(0.55, T.lavBloomMid); g.addColorStop(1, 'rgba(124, 92, 255, 0)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-
     g = ctx.createRadialGradient(w * 0.92, h * 1.05, 0, w * 0.92, h * 1.05, Math.max(w, h) * 0.70);
-    g.addColorStop(0, T.bronzeInner);
-    g.addColorStop(0.55, T.bronzeMid);
-    g.addColorStop(1, 'rgba(210, 155, 100, 0)');
+    g.addColorStop(0, T.bronzeInner); g.addColorStop(0.55, T.bronzeMid); g.addColorStop(1, 'rgba(210, 155, 100, 0)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-
     ctx.save();
     const step = Math.round(Math.min(w, h) / 26);
-    ctx.strokeStyle = T.grid;
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = T.grid; ctx.lineWidth = 1;
     ctx.beginPath();
     for (let x = step; x < w; x += step) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
     for (let y = step; y < h; y += step) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
     ctx.stroke();
     ctx.globalCompositeOperation = 'destination-out';
     const edgeFade = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.22, w/2, h/2, Math.max(w,h)*0.55);
-    edgeFade.addColorStop(0, 'rgba(0,0,0,0)');
-    edgeFade.addColorStop(1, 'rgba(0,0,0,1)');
+    edgeFade.addColorStop(0, 'rgba(0,0,0,0)'); edgeFade.addColorStop(1, 'rgba(0,0,0,1)');
     ctx.fillStyle = edgeFade; ctx.fillRect(0, 0, w, h);
     ctx.restore();
-
     ctx.globalAlpha = 1;
   }
 
-  // Orb ------------------------------------------------------------
   function drawOrb() {
     const el = state.elements.orb;
     if (!el.enabled) return;
@@ -1506,22 +1481,18 @@
     const t = state.time;
     const localT = (t - el.start) / el.duration;
     if (localT < 0) return;
-
     const eff = EFFECTS[el.effect];
     const spec = eff ? eff.apply(localT) : { mode: 'rise', t: 1 };
-
-    const style = el.style;
-    const sizeScale = style.sizeScale ?? 1;
-    const glowMul = style.glow ?? 1;
-    const dx = (style.xOffsetPct / 100) * w;
-    const dy = (style.yOffsetPct / 100) * h;
-
+    const s = el.style;
+    const sizeScale = s.sizeScale ?? 1;
+    const glowMul = s.glow ?? 1;
+    const dx = (s.xOffsetPct / 100) * w;
+    const dy = (s.yOffsetPct / 100) * h;
     const cx = w / 2 + dx;
     const targetCY = h * 0.42 + dy;
     const startCY = h * 0.62 + dy;
     let progress = clamp01(spec.t || 0);
     let cy, orbR, alpha = 1;
-
     if (spec.mode === 'rise') {
       const inT = easeOutCubic(progress);
       const holdT = Math.max(0, t - (el.start + el.duration));
@@ -1548,55 +1519,30 @@
       alpha = spec.alpha ?? 1;
     }
     if (orbR < 2) return;
-
     ctx.save();
     ctx.globalAlpha = alpha;
-
     if (glowMul > 0) {
       const glowR = orbR * 3.2 * glowMul;
       const glow = ctx.createRadialGradient(cx, cy, orbR * 0.4, cx, cy, glowR);
-      const oc = style.color ? colorWithAlpha(style.color, 0.42) : T.orbOuter1;
-      const om = style.color ? colorWithAlpha(style.color, 0.16) : T.orbOuter2;
-      glow.addColorStop(0, oc);
-      glow.addColorStop(0.35, om);
-      glow.addColorStop(1, colorWithAlpha(style.color ?? '#7c5cff', 0));
-      ctx.fillStyle = glow;
-      ctx.fillRect(cx - glowR, cy - glowR, glowR * 2, glowR * 2);
-
-      const bronzeGlow = ctx.createRadialGradient(
-        cx + orbR * 0.15, cy + orbR * 0.25, 0,
-        cx + orbR * 0.15, cy + orbR * 0.25, orbR * 1.6 * glowMul
-      );
-      bronzeGlow.addColorStop(0, T.orbBronze);
-      bronzeGlow.addColorStop(1, 'rgba(210, 155, 100, 0)');
-      ctx.fillStyle = bronzeGlow;
-      ctx.fillRect(cx - orbR * 1.8, cy - orbR * 1.8, orbR * 3.6, orbR * 3.6);
+      const oc = s.color ? colorWithAlpha(s.color, 0.42) : T.orbOuter1;
+      const om = s.color ? colorWithAlpha(s.color, 0.16) : T.orbOuter2;
+      glow.addColorStop(0, oc); glow.addColorStop(0.35, om); glow.addColorStop(1, colorWithAlpha(s.color ?? '#7c5cff', 0));
+      ctx.fillStyle = glow; ctx.fillRect(cx - glowR, cy - glowR, glowR * 2, glowR * 2);
+      const bronzeGlow = ctx.createRadialGradient(cx + orbR * 0.15, cy + orbR * 0.25, 0, cx + orbR * 0.15, cy + orbR * 0.25, orbR * 1.6 * glowMul);
+      bronzeGlow.addColorStop(0, T.orbBronze); bronzeGlow.addColorStop(1, 'rgba(210, 155, 100, 0)');
+      ctx.fillStyle = bronzeGlow; ctx.fillRect(cx - orbR * 1.8, cy - orbR * 1.8, orbR * 3.6, orbR * 3.6);
     }
-
     const body = ctx.createRadialGradient(cx - orbR * 0.35, cy - orbR * 0.4, 0, cx, cy, orbR);
     T.orbBody.forEach(([stop, color]) => body.addColorStop(stop, color));
-    ctx.fillStyle = body;
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
-    ctx.fill();
-
+    ctx.fillStyle = body; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
     ctx.globalCompositeOperation = 'multiply';
-    const rim = ctx.createRadialGradient(
-      cx + orbR * 0.35, cy + orbR * 0.45, orbR * 0.4,
-      cx + orbR * 0.35, cy + orbR * 0.45, orbR
-    );
-    rim.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    rim.addColorStop(1, T.orbRimDark);
-    ctx.fillStyle = rim;
-    ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
+    const rim = ctx.createRadialGradient(cx + orbR * 0.35, cy + orbR * 0.45, orbR * 0.4, cx + orbR * 0.35, cy + orbR * 0.45, orbR);
+    rim.addColorStop(0, 'rgba(255, 255, 255, 1)'); rim.addColorStop(1, T.orbRimDark);
+    ctx.fillStyle = rim; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
     ctx.globalCompositeOperation = 'source-over';
-
-    ctx.beginPath();
-    ctx.fillStyle = T.orbHighlight;
-    ctx.ellipse(cx - orbR * 0.32, cy - orbR * 0.42, orbR * 0.18, orbR * 0.12, -0.35, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = T.orbHighlight;
+    ctx.ellipse(cx - orbR * 0.32, cy - orbR * 0.42, orbR * 0.18, orbR * 0.12, -0.35, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
-
     state.layerBoxes.orb = { x: cx - orbR, y: cy - orbR, w: orbR * 2, h: orbR * 2 };
   }
 
@@ -1633,8 +1579,7 @@
     };
     return {
       y: stage.height * 0.83, fontSize: shortSide * 0.017, fontFamily: getVar('--font-mono'),
-      color: T.url, shadow: null, shadowBlur: 0, tracking: 0, uppercase: false,
-      urlUnder: T.urlUnder,
+      color: T.url, shadow: null, shadowBlur: 0, tracking: 0, uppercase: false, urlUnder: T.urlUnder,
     };
   }
 
@@ -1644,11 +1589,9 @@
     const t = state.time;
     const localT = (t - el.start) / el.duration;
     if (localT < 0) return;
-
     const eff = EFFECTS[el.effect] || EFFECTS['fade-up'];
     const spec = eff.apply(localT);
     if ((spec.alpha ?? 1) <= 0.001) return;
-
     const base = textStyleBase(kind);
     const s = el.style;
     const style = {
@@ -1660,31 +1603,24 @@
     };
     const weight = kind === 'wordmark' ? 500 : (kind === 'url' ? 500 : 400);
     style.font = `${weight} ${style.fontSize}px ${style.fontFamily}`;
-
     const w = stage.width;
     let raw = el.text ?? '';
     if (style.uppercase) raw = raw.toUpperCase();
     if (kind === 'url') raw = raw.toLowerCase();
-
     ctx.save();
     ctx.globalAlpha = spec.alpha ?? 1;
     ctx.font = style.font;
     ctx.fillStyle = style.color;
     ctx.textBaseline = 'middle';
     if (style.shadow) { ctx.shadowColor = style.shadow; ctx.shadowBlur = style.shadowBlur; }
-
     const styleDx = (s.xOffsetPct / 100) * stage.width;
     const styleDy = (s.yOffsetPct / 100) * stage.height;
     const cx = w / 2 + styleDx;
     const cy = style.y + styleDy + (spec.dy ?? 0) * (Math.min(w, stage.height) / 1080);
-
     if ((spec.scale ?? 1) !== 1) {
-      ctx.translate(cx, cy);
-      ctx.scale(spec.scale, spec.scale);
-      ctx.translate(-cx, -cy);
+      ctx.translate(cx, cy); ctx.scale(spec.scale, spec.scale); ctx.translate(-cx, -cy);
     }
     const dxPx = (spec.dx ?? 0) * (Math.min(w, stage.height) / 1080);
-
     if (kind === 'wordmark') {
       const letters = raw.split('');
       const tracking = style.tracking * (1 - (spec.splitTighten ?? 0));
@@ -1706,17 +1642,12 @@
           x += widths[i] + tracking;
         }
       } else {
-        for (let i = 0; i < letters.length; i++) {
-          ctx.fillText(letters[i], x, cy);
-          x += widths[i] + tracking;
-        }
+        for (let i = 0; i < letters.length; i++) { ctx.fillText(letters[i], x, cy); x += widths[i] + tracking; }
       }
       state.layerBoxes.wordmark = { x: cx - totalW / 2 + dxPx, y: cy - style.fontSize * 0.55, w: totalW, h: style.fontSize * 1.1 };
     } else {
       let display = raw;
-      if (spec.slice !== undefined && spec.slice < 1) {
-        display = raw.slice(0, Math.floor(raw.length * spec.slice));
-      }
+      if (spec.slice !== undefined && spec.slice < 1) display = raw.slice(0, Math.floor(raw.length * spec.slice));
       const metrics = ctx.measureText(display || ' ');
       const totalMetrics = ctx.measureText(raw);
       const textX = cx - totalMetrics.width / 2 + dxPx;
@@ -1726,8 +1657,7 @@
         const cursorX = textX + metrics.width + style.fontSize * 0.08;
         const cursorH = style.fontSize * 0.9;
         const blink = (Math.sin(t * 6.28 * 2.6) + 1) * 0.5;
-        ctx.save();
-        ctx.shadowBlur = 0;
+        ctx.save(); ctx.shadowBlur = 0;
         ctx.globalAlpha = (spec.alpha ?? 1) * (0.4 + blink * 0.6);
         ctx.fillStyle = currentTheme().cursor;
         ctx.fillRect(cursorX, cy - cursorH / 2, style.fontSize * 0.06, cursorH);
@@ -1736,8 +1666,7 @@
       if (kind === 'url' && style.urlUnder) {
         const shortSide = Math.min(w, stage.height);
         const ulW = shortSide * 0.020 * (s.sizeScale ?? 1);
-        ctx.save();
-        ctx.shadowBlur = 0;
+        ctx.save(); ctx.shadowBlur = 0;
         ctx.fillStyle = style.urlUnder;
         ctx.fillRect(cx - ulW / 2, cy + style.fontSize * 0.72, ulW, 1.5);
         ctx.restore();
@@ -1756,16 +1685,14 @@
     drawText('url');
     updateSelectionOutline();
     updateTransport();
+    updateTimelinePlayhead();
   }
 
   function updateSelectionOutline() {
     const box = document.getElementById('selBox');
     const tag = document.getElementById('selBoxTag');
     const b = state.selected ? state.layerBoxes[state.selected] : null;
-    if (!b || state.playing || state.recording) {
-      box.classList.remove('on');
-      return;
-    }
+    if (!b || state.playing || state.recording) { box.classList.remove('on'); return; }
     const rect = stage.getBoundingClientRect();
     const parentRect = frame.getBoundingClientRect();
     const scaleX = rect.width / stage.width;
@@ -1790,6 +1717,43 @@
       : '<path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/>';
     document.getElementById('transportIcon').innerHTML = icon;
     document.getElementById('overlayIcon').innerHTML = icon;
+    const dur = document.getElementById('tlDur');
+    if (dur) dur.textContent = state.duration.toFixed(1) + 's';
+  }
+
+  // Timeline (mobile) ---------------------------------------------
+  function renderTimeline() {
+    const tracks = document.getElementById('tlTracks');
+    if (!tracks) return;
+    tracks.innerHTML = '';
+    ELEMENT_KINDS.forEach(kind => {
+      const el = state.elements[kind];
+      const track = document.createElement('div');
+      track.className = 'tl-track';
+      if (el.enabled) {
+        const clip = document.createElement('button');
+        clip.className = 'tl-clip' + (kind === state.selected ? ' on' : '');
+        clip.dataset.kind = kind;
+        const leftPct = clamp01(el.start / state.duration) * 100;
+        const widthPct = clamp01(el.duration / state.duration) * 100;
+        clip.style.left = leftPct + '%';
+        clip.style.width = widthPct + '%';
+        clip.textContent = ELEMENT_NAMES[kind];
+        clip.addEventListener('click', () => selectKind(kind));
+        track.appendChild(clip);
+      }
+      tracks.appendChild(track);
+    });
+    // Playhead
+    const ph = document.createElement('div');
+    ph.className = 'tl-playhead';
+    ph.id = 'tlPlayhead';
+    ph.style.left = (clamp01(state.time / state.duration) * 100) + '%';
+    tracks.appendChild(ph);
+  }
+  function updateTimelinePlayhead() {
+    const ph = document.getElementById('tlPlayhead');
+    if (ph) ph.style.left = (clamp01(state.time / state.duration) * 100) + '%';
   }
 
   // Playback -------------------------------------------------------
@@ -1830,73 +1794,50 @@
   let onLoopDone = () => setStatus('Ready.', null);
 
   // Recording ------------------------------------------------------
-  //
-  // Recording pipeline:
-  //  1. Pick codec based on state.format. If MP4 requested but the
-  //     browser can't encode it, we still record WebM and hand the
-  //     user the ffmpeg one-liner in the save modal.
-  //  2. Recording plays the animation from t=0 through duration.
-  //  3. On stop, we stash the blob + extension and open the save
-  //     modal. Confirming downloads to the user's chosen filename.
   async function record() {
     if (state.recording) return;
-
     const wantMp4 = state.format === 'mp4';
-    const mimeType = wantMp4 && MP4_NATIVE_OK
-      ? supportedMimeFor('mp4')
-      : supportedMimeFor('webm');
+    const mimeType = wantMp4 && MP4_NATIVE_OK ? supportedMimeFor('mp4') : supportedMimeFor('webm');
     if (!mimeType) { setStatus('MediaRecorder unsupported.', null); return; }
-
     const willBeMp4 = mimeType.startsWith('video/mp4');
     const actualExt = willBeMp4 ? 'mp4' : 'webm';
-
     const stream = stage.captureStream(30);
     const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 10_000_000 });
     const chunks = [];
     recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
     const donePromise = new Promise(res => { recorder.onstop = () => res(); });
-
     state.recording = true;
     setStatus('Recording…', 'rec');
     state.time = 0;
     recorder.start(100);
     play();
     onLoopDone = () => setTimeout(() => recorder.stop(), 120);
-
     await donePromise;
-
     const blob = new Blob(chunks, { type: willBeMp4 ? 'video/mp4' : 'video/webm' });
     state.pendingBlob = blob;
     state.pendingExt = actualExt;
     state.recording = false;
     setStatus('Recorded · ' + (blob.size / 1024 / 1024).toFixed(1) + ' MB', 'ok');
     onLoopDone = () => setStatus('Ready.', null);
-
     openSaveModal({
       wantedMp4ButFellBack: wantMp4 && !willBeMp4,
       defaultName: `travis-${state.presetId}-${state.theme}-${state.aspect.replace(':', 'x')}-${state.duration}s`,
     });
   }
-
   function openSaveModal({ wantedMp4ButFellBack, defaultName }) {
     const backdrop = document.getElementById('saveModal');
     document.getElementById('fnameInput').value = defaultName;
     document.getElementById('fnameExt').textContent = '.' + state.pendingExt.toUpperCase();
     document.getElementById('mp4Warn').style.display = wantedMp4ButFellBack ? 'block' : 'none';
-    // Tailor the ffmpeg cmd to the file we produced.
     document.getElementById('ffmpegCmd').textContent =
       `ffmpeg -i ${defaultName}.webm -c:v libx264 -pix_fmt yuv420p ${defaultName}.mp4`;
     backdrop.classList.add('on');
     setTimeout(() => document.getElementById('fnameInput').focus(), 60);
   }
-  function closeSaveModal() {
-    document.getElementById('saveModal').classList.remove('on');
-  }
-
+  function closeSaveModal() { document.getElementById('saveModal').classList.remove('on'); }
   function commitDownload() {
     if (!state.pendingBlob) { closeSaveModal(); return; }
     let name = (document.getElementById('fnameInput').value || 'travis-intro').trim();
-    // Strip any duplicate extension the user typed.
     name = name.replace(/\.(webm|mp4)$/i, '');
     const filename = `${name}.${state.pendingExt}`;
     const url = URL.createObjectURL(state.pendingBlob);
@@ -1921,19 +1862,15 @@
   }
   function layoutStageForNormal() {
     if (document.fullscreenElement === frame || document.webkitFullscreenElement === frame) {
-      frame.style.width = '';
-      frame.style.height = '';
-      stage.style.width = '';
-      stage.style.height = '';
+      frame.style.width = ''; frame.style.height = '';
+      stage.style.width = ''; stage.style.height = '';
       return;
     }
     const [w, h] = state.sizes[state.aspect];
     const mob = isMobile();
     const sidePad = mob ? 24 : 400;
-    const maxW = mob
-      ? Math.min(window.innerWidth - sidePad, 720)
-      : Math.min(window.innerWidth - sidePad, 1100);
-    const maxH = window.innerHeight * (mob ? 0.44 : 0.55);
+    const maxW = mob ? Math.min(window.innerWidth - sidePad, 720) : Math.min(window.innerWidth - sidePad, 1100);
+    const maxH = window.innerHeight * (mob ? 0.42 : 0.55);
     let cssW = maxW;
     let cssH = cssW * (h / w);
     if (cssH > maxH) { cssH = maxH; cssW = cssH * (w / h); }
@@ -1999,7 +1936,7 @@
       row.addEventListener('click', (e) => {
         if (e.target.closest('.vis')) {
           el.enabled = !el.enabled;
-          renderLayers(); renderInspector(); drawFrame();
+          renderLayers(); renderInspector(); renderTimeline(); drawFrame();
           return;
         }
         selectKind(kind);
@@ -2024,7 +1961,6 @@
     const el = state.elements[kind];
     const s = el.style;
     document.getElementById('inspLayerLabel').textContent = ELEMENT_NAMES[kind];
-
     document.getElementById('textFieldWrap').style.display = (kind === 'orb') ? 'none' : 'flex';
     if (kind !== 'orb') document.getElementById('elText').value = el.text ?? '';
 
@@ -2039,7 +1975,6 @@
       if (e === el.effect) o.selected = true;
       select.appendChild(o);
     });
-
     document.getElementById('startInput').value = el.start.toFixed(2);
     document.getElementById('durInput').value = el.duration.toFixed(2);
 
@@ -2058,10 +1993,6 @@
     document.getElementById('glowWrap').style.display = (kind === 'orb') ? 'flex' : 'none';
     document.getElementById('styleGlow').value = s.glow;
     document.getElementById('styleGlowVal').textContent = s.glow.toFixed(2) + 'x';
-
-    // Re-map mobile tab visibility so a de/select updates which pane
-    // shows under the currently active tab.
-    if (isMobile()) setMobileTab(state.mobileTab);
   }
 
   function rgbaToHex(color) {
@@ -2075,28 +2006,25 @@
   }
   function normalizeHex(c) {
     if (!c) return '#ffffff';
-    if (c.startsWith('#')) {
-      if (c.length === 4) return '#' + c.slice(1).split('').map(x => x + x).join('');
-      return c.toLowerCase();
-    }
+    if (c.startsWith('#')) { if (c.length === 4) return '#' + c.slice(1).split('').map(x => x + x).join(''); return c.toLowerCase(); }
     return rgbaToHex(c);
   }
 
-  // Inspector wiring ----------------------------------------------
+  // Inspector wiring
   document.getElementById('effectSelect').addEventListener('change', (e) => {
     if (!state.selected) return;
     state.elements[state.selected].effect = e.target.value;
-    renderLayers(); drawFrame();
+    renderLayers(); renderTimeline(); drawFrame();
   });
   document.getElementById('startInput').addEventListener('input', (e) => {
     if (!state.selected) return;
     state.elements[state.selected].start = Math.max(0, parseFloat(e.target.value) || 0);
-    drawFrame();
+    renderTimeline(); drawFrame();
   });
   document.getElementById('durInput').addEventListener('input', (e) => {
     if (!state.selected) return;
     state.elements[state.selected].duration = Math.max(0.2, parseFloat(e.target.value) || 0.2);
-    drawFrame();
+    renderTimeline(); drawFrame();
   });
   document.getElementById('elText').addEventListener('input', (e) => {
     if (!state.selected || state.selected === 'orb') return;
@@ -2146,7 +2074,7 @@
     drawFrame();
   });
 
-  // Canvas click hit-test — miss = deselect ------------------------
+  // Canvas click hit-test — miss = deselect
   stage.addEventListener('click', (e) => {
     if (state.recording) return;
     const rect = stage.getBoundingClientRect();
@@ -2167,9 +2095,6 @@
   });
 
   // Global click — deselect if click lands outside meaningful surfaces.
-  //
-  // "Meaningful": the canvas (handled separately), the layer list,
-  // any inspector control, the modal, the transport, or a preset button.
   document.addEventListener('click', (e) => {
     if (!state.selected) return;
     const t = e.target;
@@ -2183,12 +2108,14 @@
     if (t.closest('.actions')) return;
     if (t.closest('.globals')) return;
     if (t.closest('.sel-box')) return;
-    if (t.closest('.mobile-tabs')) return;
-    if (t.closest('.mobile-action-bar')) return;
+    if (t.closest('.mob-toolbar')) return;
+    if (t.closest('.mob-top-bar')) return;
+    if (t.closest('.drawer')) return;
+    if (t.closest('.timeline-strip')) return;
     deselect();
   });
 
-  // Scrubber -------------------------------------------------------
+  // Scrubber
   (function wireScrubber() {
     const scrub = document.getElementById('scrubber');
     let dragging = false;
@@ -2209,7 +2136,7 @@
   document.getElementById('btnOverlayPlay').addEventListener('click', togglePlay);
 
   const startPreview = () => { state.time = 0; play(); };
-  const startRecord = () => {
+  const startRecord  = () => {
     record().catch((err) => {
       console.warn(err);
       setStatus('Record failed — check console.', null);
@@ -2218,42 +2145,30 @@
   };
   document.getElementById('btnPreview').addEventListener('click', startPreview);
   document.getElementById('btnRec').addEventListener('click', startRecord);
-  document.getElementById('btnPreviewMob').addEventListener('click', startPreview);
-  document.getElementById('btnRecMob').addEventListener('click', startRecord);
+  document.getElementById('mobExport').addEventListener('click', startRecord);
 
-  // Mobile tab bar
-  document.getElementById('mobileTabs').addEventListener('click', (e) => {
-    const b = e.target.closest('button');
-    if (!b) return;
-    setMobileTab(b.dataset.mtab);
-  });
-
-  // Fullscreen -----------------------------------------------------
+  // Fullscreen
   function toggleFullscreen() {
     const isFs = document.fullscreenElement === frame || document.webkitFullscreenElement === frame;
-    if (isFs) {
-      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    } else {
-      (frame.requestFullscreen || frame.webkitRequestFullscreen).call(frame);
-    }
+    if (isFs) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else      (frame.requestFullscreen || frame.webkitRequestFullscreen).call(frame);
   }
   document.getElementById('btnFs').addEventListener('click', toggleFullscreen);
   document.addEventListener('fullscreenchange', () => { layoutStageForNormal(); drawFrame(); });
   document.addEventListener('webkitfullscreenchange', () => { layoutStageForNormal(); drawFrame(); });
 
-  // Modal ----------------------------------------------------------
+  // Modal
   document.getElementById('cancelSave').addEventListener('click', closeSaveModal);
   document.getElementById('confirmSave').addEventListener('click', commitDownload);
   document.getElementById('fnameInput').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') commitDownload();
     if (e.key === 'Escape') closeSaveModal();
   });
-  // Click backdrop (not modal itself) to dismiss
   document.getElementById('saveModal').addEventListener('click', (e) => {
     if (e.target.id === 'saveModal') closeSaveModal();
   });
 
-  // Global segmented ----------------------------------------------
+  // Segmented
   document.getElementById('segTheme').addEventListener('click', (e) => {
     const b = e.target.closest('button'); if (!b) return;
     document.querySelectorAll('#segTheme button').forEach(x => x.classList.remove('on'));
@@ -2288,15 +2203,105 @@
     if (e.code === 'ArrowRight') { pause(); state.time = Math.min(state.duration, state.time + 0.1); drawFrame(); return; }
     if (e.code === 'KeyR')       { record(); return; }
     if (e.code === 'KeyF')       { toggleFullscreen(); return; }
-    if (e.code === 'Escape')     { deselect(); return; }
+    if (e.code === 'Escape')     { if (state.drawerTool) closeDrawer(); else deselect(); return; }
   });
 
-  // Boot -----------------------------------------------------------
+  // ================================================================
+  // Mobile bottom-sheet drawer + tool bar
+  //
+  // Tapping a tool icon slides the relevant section up into a bottom
+  // sheet using DOM portal — we cut the target section out of the
+  // desktop-only inspector aside and drop it into the drawer body,
+  // then put it back on close. Desktop layout stays untouched.
+  // ================================================================
+  const DRAWER_TITLES = {
+    presets: 'Presets',
+    layers:  'Layers',
+    element: 'Edit',
+    style:   'Style',
+    setup:   'Setup',
+  };
+  const DRAWER_TARGETS = {
+    presets: 'presets',
+    layers:  'layersSection',
+    element: 'elementPane',
+    style:   'stylePane',
+    setup:   'globalsRow',
+  };
+  const drawerHome = {};
+
+  function openDrawer(tool) {
+    if (state.drawerTool === tool) { closeDrawer(); return; }
+    if (state.drawerTool) closeDrawer();
+
+    // 'element' and 'style' need a selection. If none, show noSelPane.
+    let targetId = DRAWER_TARGETS[tool];
+    if ((tool === 'element' || tool === 'style') && !state.selected) {
+      targetId = 'noSelPane';
+    }
+
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    drawerHome[tool] = { id: targetId, parent: el.parentNode, next: el.nextSibling, inlineDisplay: el.style.display };
+    document.getElementById('drawerBody').appendChild(el);
+    el.style.display = '';
+    el.classList.add('in-drawer');
+    document.getElementById('drawerTitle').textContent = DRAWER_TITLES[tool];
+    document.getElementById('drawerScrim').classList.add('on');
+    document.getElementById('drawer').classList.add('on');
+    state.drawerTool = tool;
+    updateToolbarActive();
+  }
+  function closeDrawer() {
+    const tool = state.drawerTool;
+    if (!tool) return;
+    const home = drawerHome[tool];
+    if (home) {
+      const el = document.getElementById(home.id);
+      if (el && home.parent) {
+        home.parent.insertBefore(el, home.next);
+        el.classList.remove('in-drawer');
+        if (home.inlineDisplay !== undefined) el.style.display = home.inlineDisplay;
+      }
+      delete drawerHome[tool];
+    }
+    document.getElementById('drawerScrim').classList.remove('on');
+    document.getElementById('drawer').classList.remove('on');
+    state.drawerTool = null;
+    updateToolbarActive();
+    // renderInspector re-applies desktop-appropriate inline styles.
+    renderInspector();
+  }
+  function updateToolbarActive() {
+    document.querySelectorAll('#mobToolbar button').forEach(b => {
+      b.classList.toggle('on', b.dataset.tool === state.drawerTool);
+    });
+  }
+  function updateToolbarEnabled() {
+    const hasSel = !!state.selected;
+    document.querySelectorAll('#mobToolbar button').forEach(b => {
+      const t = b.dataset.tool;
+      if (t === 'element' || t === 'style') {
+        b.classList.toggle('disabled', !hasSel);
+      }
+    });
+  }
+  document.getElementById('mobToolbar').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b || b.classList.contains('disabled')) return;
+    openDrawer(b.dataset.tool);
+  });
+  document.getElementById('drawerDone').addEventListener('click', closeDrawer);
+  document.getElementById('drawerScrim').addEventListener('click', closeDrawer);
+
+  // Boot
   applyPreset('signature');
   setTheme('dark');
   setAspect('16:9');
-  setMobileTab('layers');
-  // Re-layout on breakpoint change so the canvas resizes when the
-  // user rotates a phone or resizes a browser across the mobile line.
-  mqMobile.addEventListener('change', () => { setAspect(state.aspect); });
+  updateToolbarEnabled();
+  mqMobile.addEventListener('change', () => {
+    // Close any open drawer if switching to desktop, so DOM returns home.
+    if (!isMobile() && state.drawerTool) closeDrawer();
+    setAspect(state.aspect);
+  });
 </script>
