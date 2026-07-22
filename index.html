@@ -1,3 +1,4 @@
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Travis · animation studio</title>
 <style>
   /* =========================================================
@@ -64,8 +65,8 @@
   }
 
   .studio-top      { flex: 0 0 var(--topbar-h); }
-  .studio-viewer   { flex: 1 1 auto; }
-  .studio-timeline { flex: 0 0 auto; }
+  .studio-viewer   { flex: 0 0 42dvh; }
+  .studio-timeline { flex: 1 1 auto; min-height: 0; }
   .studio-left     { display: none; }
   .studio-right    { display: none; }
 
@@ -393,8 +394,8 @@
     align-items: center;
   }
   .tl-hdr {
-    flex: 0 0 40px;
-    height: 40px;
+    flex: 1 1 44px;
+    min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -408,7 +409,7 @@
     min-width: 0;
     cursor: pointer;
     transition: color 160ms var(--curve-snap);
-    border-radius: 6px;
+    border-radius: 7px;
     width: 40px;
   }
   .tl-hdr > span { display: none; }  /* mobile: dot-only, restored on desktop */
@@ -470,18 +471,18 @@
   .tl-tracks {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    flex: 0 0 auto;
+    gap: 8px;
+    flex: 1 1 auto;
     position: relative;
     min-height: 0;
   }
   .tl-track {
     position: relative;
     background: rgba(255, 255, 255, 0.03);
-    border-radius: 6px;
+    border-radius: 7px;
     overflow: hidden;
-    height: 40px;
-    flex: 0 0 40px;
+    flex: 1 1 44px;
+    min-height: 44px;
   }
   .tl-clip {
     all: unset;
@@ -1952,10 +1953,12 @@
     const desk = isDesktop();
     const viewer = document.querySelector('.studio-viewer');
     const vRect = viewer.getBoundingClientRect();
-    const sidePad = desk ? 48 : 24;
+    // Reserve space for the transport row + viewer padding.
     const transportH = desk ? 60 : 56;
-    const maxW = Math.max(180, vRect.width - sidePad);
-    const maxH = Math.max(140, vRect.height - transportH - (desk ? 32 : 24));
+    const yPad = desk ? 32 : 20;
+    const xPad = desk ? 48 : 24;
+    const maxW = Math.max(180, vRect.width - xPad);
+    const maxH = Math.max(140, vRect.height - transportH - yPad);
     let cssW = maxW, cssH = cssW * (h / w);
     if (cssH > maxH) { cssH = maxH; cssW = cssH * (w / h); }
     frame.style.width = cssW + 'px';
