@@ -62,12 +62,14 @@
     grid-template-columns: 1fr;
     grid-template-rows:
       var(--topbar-h)
-      var(--viewer-h-mobile)
+      auto
+      auto
       minmax(0, 1fr);
     grid-template-areas:
       "top"
       "viewer"
-      "timeline";
+      "timeline"
+      "gap";
     overflow: hidden;
   }
 
@@ -158,6 +160,7 @@
     min-width: 0;
     min-height: 0;
     overflow: hidden;
+    max-height: 56dvh;
   }
   .viewer-frame {
     position: relative;
@@ -475,7 +478,7 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    flex: 1;
+    flex: 0 0 auto;
     position: relative;
     min-height: 0;
   }
@@ -484,8 +487,8 @@
     background: rgba(255, 255, 255, 0.03);
     border-radius: 6px;
     overflow: hidden;
-    min-height: 28px;
-    flex: 1;
+    height: 28px;
+    flex: 0 0 28px;
   }
   .tl-clip {
     all: unset;
@@ -1954,13 +1957,20 @@
     }
     const [w, h] = state.sizes[state.aspect];
     const desk = isDesktop();
-    // Compute available space based on the viewer's actual layout box.
-    const viewer = document.querySelector('.studio-viewer');
-    const vRect = viewer.getBoundingClientRect();
-    const transportH = 60; // approx
-    const pad = desk ? 48 : 24;
-    const maxW = Math.max(200, vRect.width - pad);
-    const maxH = Math.max(160, vRect.height - transportH - pad);
+    let maxW, maxH;
+    if (desk) {
+      const viewer = document.querySelector('.studio-viewer');
+      const vRect = viewer.getBoundingClientRect();
+      maxW = Math.max(200, vRect.width - 48);
+      maxH = Math.max(160, vRect.height - 60 - 48);
+    } else {
+      // Mobile: compute from viewport directly to avoid depending on
+      // viewer's auto height (which depends on us).
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      maxW = vw - 24;               // 12px side padding each side
+      maxH = vh * 0.48 - 60;        // viewer capped at ~48dvh, minus transport
+    }
     let cssW = maxW, cssH = cssW * (h / w);
     if (cssH > maxH) { cssH = maxH; cssW = cssH * (w / h); }
     frame.style.width = cssW + 'px';
@@ -2374,4 +2384,8 @@
   setLeftTab('presets');
   setRightTab('element');
   updateToolbarEnabled();
+  // Boot at the final frame so the viewer shows a poster of the
+  // finished animation instead of a black t=0 backdrop.
+  state.time = state.duration;
+  drawFrame();
 </script>
