@@ -1,0 +1,1768 @@
+<title>Travis · animation studio</title>
+<style>
+  /* ==========================================================
+   * Font stack — matches usetravis.com global.css
+   * If Inter is bundled locally (assets/fonts/Inter.woff2) or
+   * installed on the system, it's used; otherwise falls back to
+   * the same system stack the website uses.
+   * ========================================================== */
+  :root {
+    --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    /* Studio chrome — dark, mirrors Travis's own product surface. */
+    --ground: #07080b;
+    --elevated: #0e1015;
+    --elevated-2: #12141a;
+    --border-ambient: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.12);
+    --text-primary: rgba(236, 236, 241, 0.96);
+    --text-secondary: rgba(236, 236, 241, 0.55);
+    --text-muted: rgba(236, 236, 241, 0.30);
+    --lav: rgb(189, 158, 255);
+    --lav-soft: rgba(189, 158, 255, 0.14);
+    --bronze: rgb(210, 155, 100);
+    --bronze-soft: rgba(210, 155, 100, 0.14);
+    --curve-hero: cubic-bezier(0.22, 1, 0.36, 1);
+    --curve-snap: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html, body {
+    background: var(--ground);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+    min-height: 100vh;
+  }
+
+  * { box-sizing: border-box; }
+
+  input, button, select { font-family: inherit; }
+
+  /* ---------- Layout scaffold ---------- */
+  .page {
+    min-height: 100vh;
+    padding: 24px 20px 40px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 18px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1000px) {
+    .page { grid-template-columns: 1fr; }
+    .inspector { order: 2; }
+  }
+
+  .col-main {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  /* ---------- Header ---------- */
+  .header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .title {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 13px;
+    max-width: 640px;
+    margin-left: auto;
+  }
+
+  /* ---------- Presets carousel ---------- */
+  .presets {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 2px;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .presets::-webkit-scrollbar { display: none; }
+  .preset {
+    all: unset;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    background: var(--elevated);
+    border: 1px solid var(--border-ambient);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    min-width: 180px;
+    transition: all 200ms var(--curve-hero);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .preset:hover {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: var(--elevated-2);
+    transform: translateY(-1px);
+  }
+  .preset.on {
+    border-color: rgba(189, 158, 255, 0.42);
+    background: rgba(189, 158, 255, 0.06);
+    box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.30), 0 6px 18px -8px rgba(189, 158, 255, 0.32);
+  }
+  .preset .name {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .preset .kicker {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Preview ---------- */
+  .preview-wrap {
+    background: var(--elevated);
+    border: 1px solid var(--border-ambient);
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.02),
+      0 20px 40px -20px rgba(0, 0, 0, 0.55);
+  }
+  .stage-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .preview-frame {
+    position: relative;
+    background: black;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+    transition:
+      width 340ms var(--curve-hero),
+      height 340ms var(--curve-hero),
+      background 260ms var(--curve-hero);
+  }
+  .preview-frame.light { background: #f5f0e5; }
+  .preview-frame canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    cursor: pointer;
+  }
+
+  /* Selection outline overlay (drawn as absolutely-positioned box). */
+  .sel-box {
+    position: absolute;
+    border: 1.5px dashed rgba(189, 158, 255, 0.9);
+    border-radius: 4px;
+    pointer-events: none;
+    box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.20);
+    opacity: 0;
+    transition: opacity 180ms var(--curve-snap);
+  }
+  .sel-box.on { opacity: 1; }
+  .sel-box .tag {
+    position: absolute;
+    top: -20px; left: -1px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lav);
+    background: rgba(20, 16, 40, 0.85);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(189, 158, 255, 0.32);
+  }
+
+  /* Center-overlay play/pause button — hides on activity. */
+  .play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transition: opacity 200ms var(--curve-snap);
+  }
+  .play-overlay button {
+    all: unset;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(15, 12, 30, 0.72);
+    border: 1px solid rgba(189, 158, 255, 0.32);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    color: var(--text-primary);
+    transition: all 180ms var(--curve-hero);
+    box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.5), 0 0 24px rgba(189, 158, 255, 0.22);
+  }
+  .play-overlay button:hover {
+    background: rgba(30, 22, 60, 0.82);
+    border-color: rgba(189, 158, 255, 0.55);
+    transform: scale(1.06);
+  }
+  .play-overlay button svg { width: 26px; height: 26px; }
+  .play-overlay.hidden { opacity: 0; }
+
+  /* ---------- Transport (progress + time + play button) ---------- */
+  .transport {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 4px;
+  }
+  .transport .play-btn {
+    all: unset;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--lav-soft);
+    border: 1px solid rgba(189, 158, 255, 0.32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--lav);
+    flex-shrink: 0;
+    transition: all 180ms var(--curve-hero);
+  }
+  .transport .play-btn:hover {
+    background: rgba(189, 158, 255, 0.22);
+    border-color: rgba(189, 158, 255, 0.55);
+  }
+  .transport .play-btn svg { width: 12px; height: 12px; }
+  .scrubber-wrap {
+    flex: 1;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .scrubber-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    position: relative;
+    overflow: hidden;
+  }
+  .scrubber-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: linear-gradient(90deg, var(--lav), var(--bronze));
+    border-radius: 999px;
+    width: 0%;
+    transition: width 100ms linear;
+  }
+  .scrubber-thumb {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--lav);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px rgba(189, 158, 255, 0.5);
+    left: 0%;
+    transition: left 100ms linear;
+    pointer-events: none;
+  }
+  .time {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.10em;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    min-width: 78px;
+    text-align: right;
+  }
+
+  .preview-meta {
+    display: flex;
+    gap: 16px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .preview-meta .value {
+    color: var(--text-secondary);
+    margin-left: 4px;
+  }
+
+  /* ---------- Global controls row ---------- */
+  .globals {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (max-width: 640px) {
+    .globals { grid-template-columns: 1fr; }
+  }
+  .card {
+    background: var(--elevated);
+    border: 1px solid var(--border-ambient);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .card .label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .segmented {
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--border-ambient);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .segmented button {
+    all: unset;
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 180ms var(--curve-hero);
+  }
+  .segmented button:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .segmented button.on {
+    background: var(--lav-soft);
+    color: var(--lav);
+    box-shadow: 0 0 0 1px rgba(189, 158, 255, 0.30);
+  }
+  .segmented.bronze button.on {
+    background: var(--bronze-soft);
+    color: var(--bronze);
+    box-shadow: 0 0 0 1px rgba(210, 155, 100, 0.35);
+  }
+
+  /* ---------- Actions ---------- */
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .btn {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 200ms var(--curve-hero);
+    border: 1px solid var(--border-ambient);
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text-secondary);
+  }
+  .btn:hover {
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .btn.primary {
+    color: rgb(20, 18, 30);
+    background: var(--lav);
+    border-color: rgba(189, 158, 255, 0.55);
+    box-shadow: 0 0 20px rgba(189, 158, 255, 0.30);
+  }
+  .btn.primary:hover {
+    background: rgba(189, 158, 255, 0.90);
+    box-shadow: 0 0 28px rgba(189, 158, 255, 0.42);
+  }
+  .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.75; }
+
+  .status {
+    background: rgba(0, 0, 0, 0.20);
+    border: 1px solid var(--border-ambient);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 36px;
+  }
+  .status .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--text-muted);
+    box-shadow: 0 0 4px var(--text-muted);
+    flex-shrink: 0;
+  }
+  .status.rec .dot {
+    background: rgb(248, 113, 113);
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.8);
+    animation: rec-blink 1s var(--curve-hero) infinite;
+  }
+  @keyframes rec-blink {
+    0%, 60% { opacity: 1; }
+    80%, 100% { opacity: 0.35; }
+  }
+  .status.ok .dot {
+    background: rgb(74, 222, 128);
+    box-shadow: 0 0 6px rgba(74, 222, 128, 0.7);
+  }
+
+  /* ---------- Inspector (right column) ---------- */
+  .inspector {
+    background: var(--elevated);
+    border: 1px solid var(--border-ambient);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: fit-content;
+    position: sticky;
+    top: 24px;
+  }
+  .insp-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .insp-h {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .insp-h .hint {
+    color: var(--text-muted);
+    font-size: 9px;
+    letter-spacing: 0.10em;
+    text-transform: none;
+  }
+
+  /* Layers list */
+  .layer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .layer {
+    all: unset;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid transparent;
+    transition: all 160ms var(--curve-snap);
+  }
+  .layer:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .layer.on {
+    background: rgba(189, 158, 255, 0.10);
+    border-color: rgba(189, 158, 255, 0.32);
+  }
+  .layer .kind-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .layer[data-kind="orb"] .kind-dot {
+    background: linear-gradient(135deg, var(--lav), var(--bronze));
+  }
+  .layer[data-kind="wordmark"] .kind-dot { background: var(--text-primary); }
+  .layer[data-kind="tagline"] .kind-dot { background: var(--text-secondary); }
+  .layer[data-kind="url"] .kind-dot { background: var(--bronze); }
+  .layer .name {
+    font-size: 12.5px;
+    color: var(--text-primary);
+    flex: 1;
+    min-width: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .layer .eff {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .layer .vis {
+    all: unset;
+    width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .layer .vis:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.06); }
+  .layer.hidden-el { opacity: 0.4; }
+  .layer.hidden-el .name { text-decoration: line-through; }
+
+  /* Effect chooser as a select */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .field .flabel {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .select, .num-input {
+    all: unset;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--border-ambient);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    cursor: pointer;
+    transition: border-color 160ms var(--curve-snap);
+  }
+  .select:hover, .num-input:hover { border-color: rgba(255, 255, 255, 0.16); }
+  .select:focus, .num-input:focus { border-color: rgba(189, 158, 255, 0.42); }
+  .num-input { cursor: text; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .textfield {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid var(--border-ambient);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    color: var(--text-primary);
+  }
+  .textfield input {
+    all: unset;
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-sans);
+  }
+  .textfield input::placeholder { color: var(--text-muted); }
+
+  .disabled-panel { opacity: 0.5; pointer-events: none; }
+</style>
+
+<div class="page">
+
+  <div class="col-main">
+
+    <div class="header">
+      <div>
+        <div class="eyebrow">Travis · Video Studio</div>
+        <h1 class="title">Intro / outro animation</h1>
+      </div>
+      <div class="subtitle">
+        Click any element on the canvas to select it. Change its
+        effect and timing on the right. Pick a preset to swap the
+        whole recipe at once.
+      </div>
+    </div>
+
+    <div class="presets" id="presets"></div>
+
+    <div class="preview-wrap">
+      <div class="stage-column">
+        <div class="preview-frame" id="frame">
+          <canvas id="stage" width="1920" height="1080"></canvas>
+          <div class="sel-box" id="selBox"><span class="tag" id="selBoxTag"></span></div>
+          <div class="play-overlay" id="playOverlay">
+            <button id="btnOverlayPlay" aria-label="Play/pause">
+              <svg viewBox="0 0 24 24" id="overlayIcon"><path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="transport">
+        <button class="play-btn" id="btnPlay" aria-label="Play/pause">
+          <svg viewBox="0 0 24 24" id="transportIcon"><path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <div class="scrubber-wrap" id="scrubber">
+          <div class="scrubber-track">
+            <div class="scrubber-fill" id="scrubberFill"></div>
+          </div>
+          <div class="scrubber-thumb" id="scrubberThumb"></div>
+        </div>
+        <div class="time" id="timeLabel">0.0s / 5.0s</div>
+      </div>
+      <div class="preview-meta">
+        <div>theme<span class="value" id="metaTheme">dark</span></div>
+        <div>orientation<span class="value" id="metaAspect">16 : 9</span></div>
+        <div>native<span class="value" id="metaSize">1920 × 1080</span></div>
+      </div>
+    </div>
+
+    <div class="globals">
+      <div class="card">
+        <div class="label">Theme</div>
+        <div class="segmented bronze" id="segTheme">
+          <button data-theme="dark" class="on">Dark</button>
+          <button data-theme="light">Light</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label">Orientation</div>
+        <div class="segmented" id="segAspect">
+          <button data-aspect="16:9" class="on">16 : 9</button>
+          <button data-aspect="9:16">9 : 16</button>
+          <button data-aspect="1:1">1 : 1</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label">Duration</div>
+        <div class="segmented" id="segDur">
+          <button data-dur="4">4 s</button>
+          <button data-dur="5" class="on">5 s</button>
+          <button data-dur="8">8 s</button>
+          <button data-dur="12">12 s</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="btnPreview">
+        <svg viewBox="0 0 24 24"><path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/></svg>
+        Preview
+      </button>
+      <button class="btn primary" id="btnRec">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="currentColor" stroke="none"/></svg>
+        Record &amp; download
+      </button>
+    </div>
+
+    <div class="status" id="status">
+      <div class="dot"></div>
+      <span id="statusText">Ready. Click an element to edit, or pick a preset.</span>
+    </div>
+
+  </div>
+
+  <aside class="inspector">
+    <div class="insp-section">
+      <div class="insp-h"><span>Layers</span><span class="hint">click to select</span></div>
+      <div class="layer-list" id="layerList"></div>
+    </div>
+
+    <div class="insp-section" id="layerInspector">
+      <div class="insp-h"><span>Element</span><span class="hint" id="inspLayerLabel"></span></div>
+
+      <div class="field" id="textFieldWrap">
+        <div class="flabel">Text</div>
+        <div class="textfield">
+          <input id="elText" type="text" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="flabel">Effect</div>
+        <select class="select" id="effectSelect"></select>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <div class="flabel">Start (s)</div>
+          <input type="number" class="num-input" id="startInput" min="0" max="20" step="0.1" />
+        </div>
+        <div class="field">
+          <div class="flabel">Duration (s)</div>
+          <input type="number" class="num-input" id="durInput" min="0.2" max="12" step="0.1" />
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+  // ================================================================
+  // Travis animation studio — motion graphics mini-editor.
+  // ================================================================
+
+  // Themes -----------------------------------------------------------
+  const THEMES = {
+    dark: {
+      ground: '#07080b',
+      lavBloomInner: 'rgba(124, 92, 255, 0.20)',
+      lavBloomMid:   'rgba(124, 92, 255, 0.06)',
+      bronzeInner:   'rgba(210, 155, 100, 0.16)',
+      bronzeMid:     'rgba(210, 155, 100, 0.05)',
+      grid:          'rgba(189, 158, 255, 0.045)',
+      orbOuter1:     'rgba(189, 158, 255, 0.42)',
+      orbOuter2:     'rgba(189, 158, 255, 0.16)',
+      orbBronze:     'rgba(210, 155, 100, 0.34)',
+      orbBody: [
+        [0.00, 'rgba(255, 255, 255, 0.85)'],
+        [0.20, 'rgba(230, 210, 255, 0.55)'],
+        [0.55, 'rgba(210, 155, 100, 0.72)'],
+        [0.85, 'rgba(155, 118, 220, 0.85)'],
+        [1.00, 'rgba(90, 62, 160, 0.95)'],
+      ],
+      orbRimDark: 'rgba(50, 40, 90, 1)',
+      orbHighlight: 'rgba(255, 255, 255, 0.55)',
+      wordmark:       'rgba(236, 236, 241, 0.96)',
+      wordmarkShadow: 'rgba(189, 158, 255, 0.55)',
+      tagline: 'rgba(236, 236, 241, 0.62)',
+      url:     'rgba(210, 155, 100, 0.82)',
+      urlUnder:'rgba(210, 155, 100, 0.55)',
+      cursor:  'rgba(236, 236, 241, 0.85)',
+    },
+    light: {
+      ground: '#f5f0e5',
+      lavBloomInner: 'rgba(124, 92, 220, 0.14)',
+      lavBloomMid:   'rgba(124, 92, 220, 0.03)',
+      bronzeInner:   'rgba(190, 118, 60, 0.12)',
+      bronzeMid:     'rgba(190, 118, 60, 0.03)',
+      grid:          'rgba(45, 30, 12, 0.06)',
+      orbOuter1:     'rgba(124, 92, 220, 0.28)',
+      orbOuter2:     'rgba(124, 92, 220, 0.09)',
+      orbBronze:     'rgba(210, 155, 100, 0.30)',
+      orbBody: [
+        [0.00, 'rgba(255, 255, 255, 0.98)'],
+        [0.20, 'rgba(240, 226, 255, 0.72)'],
+        [0.55, 'rgba(210, 155, 100, 0.78)'],
+        [0.85, 'rgba(140, 100, 210, 0.92)'],
+        [1.00, 'rgba(80, 52, 150, 0.98)'],
+      ],
+      orbRimDark: 'rgba(70, 50, 110, 1)',
+      orbHighlight: 'rgba(255, 255, 255, 0.85)',
+      wordmark:       'rgba(28, 22, 16, 0.95)',
+      wordmarkShadow: 'rgba(190, 118, 60, 0.42)',
+      tagline: 'rgba(28, 22, 16, 0.62)',
+      url:     'rgb(168, 108, 46)',
+      urlUnder:'rgba(168, 108, 46, 0.55)',
+      cursor:  'rgba(28, 22, 16, 0.85)',
+    },
+  };
+
+  // Effect catalog ---------------------------------------------------
+  //
+  // Each effect returns an "appearance" object with alpha, translation,
+  // scale, and (for text) a `slice` fraction (0..1) determining how
+  // much of the string is revealed.
+  //
+  // t01 = time normalized within the element's duration (0..1).
+  // Values above 1 mean the effect is complete; we clamp downstream.
+
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+  const easeOutQuint = t => 1 - Math.pow(1 - t, 5);
+  const easeInOutCubic = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const clamp01 = t => Math.max(0, Math.min(1, t));
+
+  const EFFECTS = {
+    none: {
+      label: 'None',
+      apply: () => ({ alpha: 1, dx: 0, dy: 0, scale: 1, slice: 1 }),
+    },
+    'fade-up': {
+      label: 'Fade up',
+      apply: (t) => {
+        const e = easeOutCubic(clamp01(t));
+        return { alpha: e, dx: 0, dy: (1 - e) * 20, scale: 1, slice: 1 };
+      },
+    },
+    'fade-in': {
+      label: 'Fade in',
+      apply: (t) => {
+        const e = easeOutCubic(clamp01(t));
+        return { alpha: e, dx: 0, dy: 0, scale: 1, slice: 1 };
+      },
+    },
+    'slide-left': {
+      label: 'Slide left',
+      apply: (t) => {
+        const e = easeOutCubic(clamp01(t));
+        return { alpha: e, dx: (1 - e) * -40, dy: 0, scale: 1, slice: 1 };
+      },
+    },
+    'slide-right': {
+      label: 'Slide right',
+      apply: (t) => {
+        const e = easeOutCubic(clamp01(t));
+        return { alpha: e, dx: (1 - e) * 40, dy: 0, scale: 1, slice: 1 };
+      },
+    },
+    'scale-in': {
+      label: 'Scale in',
+      apply: (t) => {
+        const e = easeOutCubic(clamp01(t));
+        return { alpha: e, dx: 0, dy: 0, scale: 0.6 + 0.4 * e, slice: 1 };
+      },
+    },
+    'typewriter': {
+      label: 'Typewriter',
+      // Reveal characters progressively; hold visible after done.
+      apply: (t) => {
+        const e = clamp01(t);
+        return { alpha: 1, dx: 0, dy: 0, scale: 1, slice: e, cursor: t < 1.05 };
+      },
+    },
+    'split-in': {
+      label: 'Split in',
+      // Letters start clustered and spread apart while fading in.
+      apply: (t) => {
+        const e = easeOutCubic(clamp01(t));
+        return { alpha: e, dx: 0, dy: 0, scale: 1, slice: 1, splitTighten: 1 - e };
+      },
+    },
+    'split-up': {
+      label: 'Stagger up',
+      // Letters cascade in from below, one at a time. Handled specially
+      // in the wordmark renderer.
+      apply: (t) => {
+        return { alpha: 1, dx: 0, dy: 0, scale: 1, slice: 1, stagger: clamp01(t) };
+      },
+    },
+    // Orb-only.
+    'rise-breath': {
+      label: 'Rise + breath',
+      orb: true,
+      apply: (t) => ({ mode: 'rise', t: clamp01(t) }),
+    },
+    'glow-in': {
+      label: 'Glow in',
+      orb: true,
+      apply: (t) => ({ mode: 'glow', t: clamp01(t) }),
+    },
+    'pulse': {
+      label: 'Pulse',
+      orb: true,
+      apply: (t) => ({ mode: 'pulse', t: clamp01(t) }),
+    },
+  };
+
+  const TEXT_EFFECTS = ['none', 'fade-up', 'fade-in', 'slide-left', 'slide-right', 'scale-in', 'typewriter', 'split-in', 'split-up'];
+  const ORB_EFFECTS = ['none', 'rise-breath', 'glow-in', 'pulse', 'fade-in', 'scale-in'];
+
+  // Presets ----------------------------------------------------------
+  //
+  // A preset defines the elements array (order + effect + timing).
+  // Elements without an entry retain their previous state, so we
+  // always include all four in each preset for determinism.
+  const PRESETS = [
+    {
+      id: 'signature',
+      name: 'Signature',
+      kicker: 'Default',
+      elements: {
+        orb:      { effect: 'rise-breath', start: 0.4, duration: 1.2, enabled: true },
+        wordmark: { effect: 'fade-up',     start: 1.3, duration: 1.1, enabled: true, text: 'TRAVIS' },
+        tagline:  { effect: 'fade-up',     start: 2.1, duration: 0.9, enabled: true, text: 'The agent that runs across your work' },
+        url:      { effect: 'fade-up',     start: 2.6, duration: 1.0, enabled: true, text: 'usetravis.com' },
+      },
+    },
+    {
+      id: 'typewriter',
+      name: 'Typewriter',
+      kicker: 'Text-forward',
+      elements: {
+        orb:      { effect: 'rise-breath', start: 0.4, duration: 1.2, enabled: true },
+        wordmark: { effect: 'split-up',    start: 1.3, duration: 1.4, enabled: true, text: 'TRAVIS' },
+        tagline:  { effect: 'typewriter',  start: 2.6, duration: 1.8, enabled: true, text: 'The agent that runs across your work' },
+        url:      { effect: 'fade-up',     start: 4.2, duration: 1.0, enabled: true, text: 'usetravis.com' },
+      },
+    },
+    {
+      id: 'cascade',
+      name: 'Cascade',
+      kicker: 'Dimensional',
+      elements: {
+        orb:      { effect: 'glow-in',    start: 0.2, duration: 1.5, enabled: true },
+        wordmark: { effect: 'split-in',   start: 1.5, duration: 1.3, enabled: true, text: 'TRAVIS' },
+        tagline:  { effect: 'slide-left', start: 2.6, duration: 1.0, enabled: true, text: 'The agent that runs across your work' },
+        url:      { effect: 'slide-right',start: 3.2, duration: 1.0, enabled: true, text: 'usetravis.com' },
+      },
+    },
+    {
+      id: 'snap',
+      name: 'Snap',
+      kicker: 'Punchy',
+      elements: {
+        orb:      { effect: 'pulse',    start: 0.1, duration: 1.0, enabled: true },
+        wordmark: { effect: 'scale-in', start: 0.8, duration: 0.6, enabled: true, text: 'TRAVIS' },
+        tagline:  { effect: 'fade-in',  start: 1.3, duration: 0.5, enabled: true, text: 'The agent that runs across your work' },
+        url:      { effect: 'fade-in',  start: 1.7, duration: 0.5, enabled: true, text: 'usetravis.com' },
+      },
+    },
+    {
+      id: 'broadcast',
+      name: 'Broadcast',
+      kicker: 'Cinematic',
+      elements: {
+        orb:      { effect: 'glow-in',    start: 0.4, duration: 2.0, enabled: true },
+        wordmark: { effect: 'fade-up',    start: 2.0, duration: 1.6, enabled: true, text: 'TRAVIS' },
+        tagline:  { effect: 'typewriter', start: 3.4, duration: 2.4, enabled: true, text: 'The agent that runs across your work' },
+        url:      { effect: 'fade-up',    start: 5.8, duration: 1.2, enabled: true, text: 'usetravis.com' },
+      },
+    },
+    {
+      id: 'minimal',
+      name: 'Minimal',
+      kicker: 'Wordmark only',
+      elements: {
+        orb:      { effect: 'none',     start: 0.0, duration: 0.1, enabled: false },
+        wordmark: { effect: 'scale-in', start: 0.4, duration: 1.0, enabled: true, text: 'TRAVIS' },
+        tagline:  { effect: 'fade-in',  start: 1.4, duration: 0.8, enabled: true, text: 'The agent that runs across your work' },
+        url:      { effect: 'fade-in',  start: 2.0, duration: 0.8, enabled: true, text: 'usetravis.com' },
+      },
+    },
+  ];
+
+  const ELEMENT_KINDS = ['orb', 'wordmark', 'tagline', 'url'];
+  const ELEMENT_NAMES = {
+    orb: 'Orb',
+    wordmark: 'Wordmark',
+    tagline: 'Tagline',
+    url: 'URL',
+  };
+
+  // State ------------------------------------------------------------
+  const stage = document.getElementById('stage');
+  const frame = document.getElementById('frame');
+  const ctx = stage.getContext('2d');
+
+  const state = {
+    theme: 'dark',
+    aspect: '16:9',
+    duration: 5.0,
+    time: 0,
+    playing: false,
+    recording: false,
+    startedAt: 0,
+    startedFromTime: 0,
+    rafId: null,
+    selected: 'wordmark',
+    presetId: 'signature',
+    elements: JSON.parse(JSON.stringify(PRESETS[0].elements)),
+    sizes: {
+      '16:9': [1920, 1080],
+      '9:16': [1080, 1920],
+      '1:1':  [1080, 1080],
+    },
+    lastMoveAt: 0,
+    layerBoxes: {}, // filled during draw so we can hit-test + show sel outline
+  };
+
+  function currentTheme() { return THEMES[state.theme]; }
+
+  // Backdrop ---------------------------------------------------------
+  function drawBackdrop() {
+    const T = currentTheme();
+    const w = stage.width, h = stage.height;
+    const t = state.time;
+    const fade = clamp01(t / 0.6);
+
+    ctx.fillStyle = T.ground;
+    ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = fade;
+
+    let g = ctx.createRadialGradient(w * 0.18, h * -0.05, 0, w * 0.18, h * -0.05, Math.max(w, h) * 0.65);
+    g.addColorStop(0, T.lavBloomInner);
+    g.addColorStop(0.55, T.lavBloomMid);
+    g.addColorStop(1, 'rgba(124, 92, 255, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    g = ctx.createRadialGradient(w * 0.92, h * 1.05, 0, w * 0.92, h * 1.05, Math.max(w, h) * 0.70);
+    g.addColorStop(0, T.bronzeInner);
+    g.addColorStop(0.55, T.bronzeMid);
+    g.addColorStop(1, 'rgba(210, 155, 100, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.save();
+    const step = Math.round(Math.min(w, h) / 26);
+    ctx.strokeStyle = T.grid;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = step; x < w; x += step) {
+      ctx.moveTo(x + 0.5, 0);
+      ctx.lineTo(x + 0.5, h);
+    }
+    for (let y = step; y < h; y += step) {
+      ctx.moveTo(0, y + 0.5);
+      ctx.lineTo(w, y + 0.5);
+    }
+    ctx.stroke();
+    ctx.globalCompositeOperation = 'destination-out';
+    const edgeFade = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.22, w/2, h/2, Math.max(w,h)*0.55);
+    edgeFade.addColorStop(0, 'rgba(0,0,0,0)');
+    edgeFade.addColorStop(1, 'rgba(0,0,0,1)');
+    ctx.fillStyle = edgeFade;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+
+    ctx.globalAlpha = 1;
+  }
+
+  // Orb --------------------------------------------------------------
+  function drawOrb() {
+    const el = state.elements.orb;
+    if (!el.enabled) return;
+    const T = currentTheme();
+    const w = stage.width, h = stage.height;
+    const shortSide = Math.min(w, h);
+    const t = state.time;
+
+    const localT = (t - el.start) / el.duration;
+    if (localT < 0) return;
+
+    const effect = EFFECTS[el.effect];
+    const spec = effect ? effect.apply(localT) : { mode: 'rise', t: 1 };
+
+    const cx = w / 2;
+    const targetCY = h * 0.42;
+    const startCY = h * 0.62;
+    let progress = clamp01(spec.t || 0);
+    let cy, orbR, alpha = 1;
+
+    if (spec.mode === 'rise') {
+      const inT = easeOutCubic(progress);
+      const holdT = Math.max(0, t - (el.start + el.duration));
+      const breath = 1.0 + Math.sin(holdT * 1.2) * 0.018;
+      orbR = shortSide * 0.11 * inT * breath;
+      cy = startCY + (targetCY - startCY) * inT;
+    } else if (spec.mode === 'glow') {
+      const inT = easeOutQuint(progress);
+      const holdT = Math.max(0, t - (el.start + el.duration));
+      const breath = 1.0 + Math.sin(holdT * 1.0) * 0.014;
+      orbR = shortSide * 0.11 * inT * breath;
+      cy = targetCY;
+      alpha = inT;
+    } else if (spec.mode === 'pulse') {
+      const inT = easeOutCubic(progress);
+      const holdT = Math.max(0, t - (el.start + el.duration));
+      const pulse = 1.0 + Math.sin(holdT * 2.4) * 0.045 * Math.exp(-holdT * 0.6);
+      orbR = shortSide * 0.11 * inT * pulse;
+      cy = targetCY;
+    } else {
+      // Fallback for effects that aren't orb-specific: use their alpha/scale/dy.
+      const inT = clamp01(spec.alpha ?? progress);
+      orbR = shortSide * 0.11 * inT * (spec.scale ?? 1);
+      cy = targetCY + (spec.dy ?? 0) * (shortSide / 1080);
+      alpha = spec.alpha ?? 1;
+    }
+
+    if (orbR < 2) return;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+
+    const glowR = orbR * 3.2;
+    const glow = ctx.createRadialGradient(cx, cy, orbR * 0.4, cx, cy, glowR);
+    glow.addColorStop(0, T.orbOuter1);
+    glow.addColorStop(0.35, T.orbOuter2);
+    glow.addColorStop(1, 'rgba(189, 158, 255, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(cx - glowR, cy - glowR, glowR * 2, glowR * 2);
+
+    const bronzeGlow = ctx.createRadialGradient(
+      cx + orbR * 0.15, cy + orbR * 0.25, 0,
+      cx + orbR * 0.15, cy + orbR * 0.25, orbR * 1.6
+    );
+    bronzeGlow.addColorStop(0, T.orbBronze);
+    bronzeGlow.addColorStop(1, 'rgba(210, 155, 100, 0)');
+    ctx.fillStyle = bronzeGlow;
+    ctx.fillRect(cx - orbR * 1.8, cy - orbR * 1.8, orbR * 3.6, orbR * 3.6);
+
+    const body = ctx.createRadialGradient(cx - orbR * 0.35, cy - orbR * 0.4, 0, cx, cy, orbR);
+    T.orbBody.forEach(([stop, color]) => body.addColorStop(stop, color));
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.globalCompositeOperation = 'multiply';
+    const rim = ctx.createRadialGradient(
+      cx + orbR * 0.35, cy + orbR * 0.45, orbR * 0.4,
+      cx + orbR * 0.35, cy + orbR * 0.45, orbR
+    );
+    rim.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    rim.addColorStop(1, T.orbRimDark);
+    ctx.fillStyle = rim;
+    ctx.beginPath();
+    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    ctx.beginPath();
+    ctx.fillStyle = T.orbHighlight;
+    ctx.ellipse(cx - orbR * 0.32, cy - orbR * 0.42, orbR * 0.18, orbR * 0.12, -0.35, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+
+    state.layerBoxes.orb = {
+      x: cx - orbR, y: cy - orbR,
+      w: orbR * 2, h: orbR * 2,
+    };
+  }
+
+  // Text renderers ---------------------------------------------------
+  //
+  // We render text elements uniformly with per-effect variations.
+  // Layout is kind-specific — wordmark is bigger, tagline is medium,
+  // URL is smallest.
+
+  function textStyleFor(kind) {
+    const T = currentTheme();
+    const shortSide = Math.min(stage.width, stage.height);
+    if (kind === 'wordmark') {
+      return {
+        y: stage.height * 0.60,
+        fontSize: shortSide * 0.075,
+        font: `500 ${shortSide * 0.075}px ${getVar('--font-mono')}`,
+        color: T.wordmark,
+        shadow: T.wordmarkShadow,
+        shadowBlur: shortSide * 0.075 * 0.18,
+        tracking: shortSide * 0.075 * 0.38,
+        uppercase: true,
+      };
+    }
+    if (kind === 'tagline') {
+      return {
+        y: stage.height * 0.72,
+        fontSize: shortSide * 0.022,
+        font: `400 ${shortSide * 0.022}px ${getVar('--font-sans')}`,
+        color: T.tagline,
+        shadow: null,
+        shadowBlur: 0,
+        tracking: 0,
+        uppercase: false,
+      };
+    }
+    // url
+    return {
+      y: stage.height * 0.83,
+      fontSize: shortSide * 0.017,
+      font: `500 ${shortSide * 0.017}px ${getVar('--font-mono')}`,
+      color: T.url,
+      shadow: null,
+      shadowBlur: 0,
+      tracking: 0,
+      uppercase: false,
+      urlUnder: T.urlUnder,
+    };
+  }
+
+  function getVar(name) {
+    return getComputedStyle(document.body).getPropertyValue(name).trim() || 'ui-sans-serif';
+  }
+
+  function drawText(kind) {
+    const el = state.elements[kind];
+    if (!el.enabled) return;
+    const t = state.time;
+    const localT = (t - el.start) / el.duration;
+    if (localT < 0) return;
+
+    const effect = EFFECTS[el.effect] || EFFECTS['fade-up'];
+    const spec = effect.apply(localT);
+    if ((spec.alpha ?? 1) <= 0.001) return;
+
+    const style = textStyleFor(kind);
+    const w = stage.width;
+    let raw = el.text ?? '';
+    if (style.uppercase) raw = raw.toUpperCase();
+    // urls read best lowercase
+    if (kind === 'url') raw = raw.toLowerCase();
+
+    ctx.save();
+    ctx.globalAlpha = spec.alpha ?? 1;
+    ctx.font = style.font;
+    ctx.fillStyle = style.color;
+    ctx.textBaseline = 'middle';
+    if (style.shadow) {
+      ctx.shadowColor = style.shadow;
+      ctx.shadowBlur = style.shadowBlur;
+    }
+
+    const cx = w / 2;
+    const cy = style.y + (spec.dy ?? 0) * (Math.min(w, stage.height) / 1080);
+
+    // Scale about center
+    if ((spec.scale ?? 1) !== 1) {
+      ctx.translate(cx, cy);
+      ctx.scale(spec.scale, spec.scale);
+      ctx.translate(-cx, -cy);
+    }
+
+    // dx applied uniformly
+    const dxPx = (spec.dx ?? 0) * (Math.min(w, stage.height) / 1080);
+
+    // ----- Wordmark: letter-tracked. Handle split-in, split-up specially. -----
+    if (kind === 'wordmark') {
+      const letters = raw.split('');
+      const tracking = style.tracking * (1 - (spec.splitTighten ?? 0)); // split-in tightens tracking
+      const widths = letters.map(L => ctx.measureText(L).width);
+      const totalW = widths.reduce((a, b) => a + b, 0) + tracking * (letters.length - 1);
+
+      let x = cx - totalW / 2 + dxPx;
+      ctx.textAlign = 'left';
+
+      if (spec.stagger !== undefined) {
+        // split-up: cascade each letter from below with its own local timing
+        const perLetter = 1 / letters.length;
+        const staggerT = spec.stagger;
+        for (let i = 0; i < letters.length; i++) {
+          const localLetter = clamp01((staggerT - i * perLetter * 0.6) / (perLetter * 1.4));
+          const e = easeOutCubic(localLetter);
+          const dy = (1 - e) * style.fontSize * 0.6;
+          const savedAlpha = ctx.globalAlpha;
+          ctx.globalAlpha = savedAlpha * e;
+          ctx.fillText(letters[i], x, cy + dy);
+          ctx.globalAlpha = savedAlpha;
+          x += widths[i] + tracking;
+        }
+      } else {
+        for (let i = 0; i < letters.length; i++) {
+          ctx.fillText(letters[i], x, cy);
+          x += widths[i] + tracking;
+        }
+      }
+
+      // Bounding box for hit-testing / sel outline.
+      const boxLeft = cx - totalW / 2 + dxPx;
+      state.layerBoxes.wordmark = {
+        x: boxLeft, y: cy - style.fontSize * 0.55,
+        w: totalW, h: style.fontSize * 1.1,
+      };
+    }
+    // ----- Tagline + URL: single measured line, respect typewriter slice. -----
+    else {
+      let display = raw;
+      if (spec.slice !== undefined && spec.slice < 1) {
+        const n = Math.floor(raw.length * spec.slice);
+        display = raw.slice(0, n);
+      }
+      const metrics = ctx.measureText(display || ' ');
+      const totalMetrics = ctx.measureText(raw);
+      const textX = cx - totalMetrics.width / 2 + dxPx;
+
+      ctx.textAlign = 'left';
+      ctx.fillText(display, textX, cy);
+
+      // Blinking cursor for typewriter while running.
+      if (spec.cursor) {
+        const cursorX = textX + metrics.width + style.fontSize * 0.08;
+        const cursorH = style.fontSize * 0.9;
+        const blink = (Math.sin(t * 6.28 * 2.6) + 1) * 0.5;
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = (spec.alpha ?? 1) * (0.4 + blink * 0.6);
+        ctx.fillStyle = currentTheme().cursor;
+        ctx.fillRect(cursorX, cy - cursorH / 2, style.fontSize * 0.06, cursorH);
+        ctx.restore();
+      }
+
+      // URL underline mark.
+      if (kind === 'url' && style.urlUnder) {
+        const shortSide = Math.min(w, stage.height);
+        const ulW = shortSide * 0.020;
+        ctx.save();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = style.urlUnder;
+        ctx.fillRect(cx - ulW / 2, cy + style.fontSize * 0.72, ulW, 1.5);
+        ctx.restore();
+      }
+
+      state.layerBoxes[kind] = {
+        x: cx - totalMetrics.width / 2 + dxPx,
+        y: cy - style.fontSize * 0.55,
+        w: totalMetrics.width,
+        h: style.fontSize * 1.1,
+      };
+    }
+
+    ctx.restore();
+  }
+
+  // Frame renderer ---------------------------------------------------
+  function drawFrame() {
+    state.layerBoxes = {};
+    drawBackdrop();
+    drawOrb();
+    drawText('wordmark');
+    drawText('tagline');
+    drawText('url');
+    updateSelectionOutline();
+    updateTransport();
+  }
+
+  function updateSelectionOutline() {
+    const box = document.getElementById('selBox');
+    const tag = document.getElementById('selBoxTag');
+    const b = state.layerBoxes[state.selected];
+    if (!b || !state.selected || state.playing || state.recording) {
+      box.classList.remove('on');
+      return;
+    }
+    // Scale from stage native to preview CSS.
+    const rect = stage.getBoundingClientRect();
+    const parentRect = frame.getBoundingClientRect();
+    const scaleX = rect.width / stage.width;
+    const scaleY = rect.height / stage.height;
+    const pad = 8;
+    box.style.left = ((rect.left - parentRect.left) + b.x * scaleX - pad) + 'px';
+    box.style.top = ((rect.top - parentRect.top) + b.y * scaleY - pad) + 'px';
+    box.style.width = (b.w * scaleX + pad * 2) + 'px';
+    box.style.height = (b.h * scaleY + pad * 2) + 'px';
+    tag.textContent = ELEMENT_NAMES[state.selected];
+    box.classList.add('on');
+  }
+
+  function updateTransport() {
+    const pct = state.duration > 0 ? clamp01(state.time / state.duration) : 0;
+    document.getElementById('scrubberFill').style.width = (pct * 100) + '%';
+    document.getElementById('scrubberThumb').style.left = (pct * 100) + '%';
+    document.getElementById('timeLabel').textContent =
+      state.time.toFixed(1) + 's / ' + state.duration.toFixed(1) + 's';
+    // Transport play button icon
+    document.getElementById('transportIcon').innerHTML = state.playing
+      ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z" fill="currentColor" stroke="none"/>'
+      : '<path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/>';
+    document.getElementById('overlayIcon').innerHTML = state.playing
+      ? '<path d="M6 5h4v14H6zM14 5h4v14h-4z" fill="currentColor" stroke="none"/>'
+      : '<path d="M7 5v14l12-7z" fill="currentColor" stroke="none"/>';
+  }
+
+  // Playback ---------------------------------------------------------
+  function play() {
+    if (state.playing) return;
+    if (state.time >= state.duration - 0.02) state.time = 0;
+    state.playing = true;
+    state.startedAt = performance.now();
+    state.startedFromTime = state.time;
+    state.rafId = requestAnimationFrame(loop);
+    setStatus('Playing…', null);
+  }
+
+  function pause() {
+    if (!state.playing) return;
+    state.playing = false;
+    if (state.rafId) cancelAnimationFrame(state.rafId);
+    drawFrame();
+    setStatus('Paused.', null);
+  }
+
+  function togglePlay() {
+    if (state.recording) return;
+    if (state.playing) pause();
+    else play();
+  }
+
+  function loop(now) {
+    if (!state.playing) return;
+    const dt = (now - state.startedAt) / 1000;
+    state.time = state.startedFromTime + dt;
+    if (state.time >= state.duration) {
+      state.time = state.duration;
+      state.playing = false;
+      drawFrame();
+      onLoopDone();
+      return;
+    }
+    drawFrame();
+    state.rafId = requestAnimationFrame(loop);
+  }
+
+  let onLoopDone = () => setStatus('Ready.', null);
+
+  // Recording --------------------------------------------------------
+  async function record() {
+    if (state.recording) return;
+
+    const candidates = [
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=vp8',
+      'video/webm',
+    ];
+    const mimeType = candidates.find((m) => MediaRecorder.isTypeSupported(m));
+    if (!mimeType) { setStatus('MediaRecorder unsupported.', null); return; }
+
+    const stream = stage.captureStream(30);
+    const recorder = new MediaRecorder(stream, {
+      mimeType,
+      videoBitsPerSecond: 10_000_000,
+    });
+    const chunks = [];
+    recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+    const donePromise = new Promise((resolve) => { recorder.onstop = () => resolve(); });
+
+    state.recording = true;
+    setStatus('Recording…', 'rec');
+    state.time = 0;
+    recorder.start(100);
+    play();
+    onLoopDone = () => setTimeout(() => recorder.stop(), 120);
+
+    await donePromise;
+    const blob = new Blob(chunks, { type: 'video/webm' });
+    const filename = `travis-${state.presetId}-${state.theme}-${state.aspect.replace(':', 'x')}-${state.duration}s.webm`;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    state.recording = false;
+    setStatus('Saved · ' + filename, 'ok');
+    onLoopDone = () => setStatus('Ready.', null);
+  }
+
+  // Aspect / theme / duration ----------------------------------------
+  function setAspect(aspect) {
+    state.aspect = aspect;
+    const [w, h] = state.sizes[aspect];
+    stage.width = w;
+    stage.height = h;
+    const maxW = Math.min(window.innerWidth - 400, 1100);
+    const maxH = window.innerHeight * 0.55;
+    let cssW = maxW;
+    let cssH = cssW * (h / w);
+    if (cssH > maxH) { cssH = maxH; cssW = cssH * (w / h); }
+    frame.style.width = cssW + 'px';
+    frame.style.height = cssH + 'px';
+    stage.style.width = cssW + 'px';
+    stage.style.height = cssH + 'px';
+    document.getElementById('metaAspect').textContent = aspect.replace(':', ' : ');
+    document.getElementById('metaSize').textContent = w + ' × ' + h;
+    drawFrame();
+  }
+
+  function setTheme(theme) {
+    state.theme = theme;
+    document.getElementById('metaTheme').textContent = theme;
+    frame.classList.toggle('light', theme === 'light');
+    drawFrame();
+  }
+
+  function setDuration(d) {
+    state.duration = d;
+    if (state.time > d) state.time = d;
+    drawFrame();
+  }
+
+  function setStatus(text, kind) {
+    const el = document.getElementById('status');
+    el.classList.remove('rec', 'ok');
+    if (kind) el.classList.add(kind);
+    document.getElementById('statusText').textContent = text;
+  }
+
+  // Presets ----------------------------------------------------------
+  function renderPresets() {
+    const wrap = document.getElementById('presets');
+    wrap.innerHTML = '';
+    PRESETS.forEach(p => {
+      const b = document.createElement('button');
+      b.className = 'preset' + (p.id === state.presetId ? ' on' : '');
+      b.dataset.id = p.id;
+      b.innerHTML = `<div class="kicker">${p.kicker}</div><div class="name">${p.name}</div>`;
+      b.addEventListener('click', () => applyPreset(p.id));
+      wrap.appendChild(b);
+    });
+  }
+
+  function applyPreset(id) {
+    const p = PRESETS.find(x => x.id === id);
+    if (!p) return;
+    state.presetId = id;
+    state.elements = JSON.parse(JSON.stringify(p.elements));
+    state.time = 0;
+    renderPresets();
+    renderLayers();
+    renderInspector();
+    drawFrame();
+    setStatus('Preset · ' + p.name, null);
+  }
+
+  // Layer list -------------------------------------------------------
+  function renderLayers() {
+    const list = document.getElementById('layerList');
+    list.innerHTML = '';
+    ELEMENT_KINDS.forEach(kind => {
+      const el = state.elements[kind];
+      const row = document.createElement('div');
+      row.className = 'layer' + (kind === state.selected ? ' on' : '') + (el.enabled ? '' : ' hidden-el');
+      row.dataset.kind = kind;
+      row.innerHTML = `
+        <div class="kind-dot"></div>
+        <div class="name">${ELEMENT_NAMES[kind]}</div>
+        <div class="eff">${el.effect.replace(/-/g, ' ')}</div>
+        <button class="vis" title="Toggle visible">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+            ${el.enabled
+              ? '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'
+              : '<path d="M2 12s3.5-7 10-7c2.7 0 4.9 1.2 6.6 2.6M22 12s-3.5 7-10 7c-2.7 0-4.9-1.2-6.6-2.6"/><path d="M4 4l16 16"/>'}
+          </svg>
+        </button>`;
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.vis')) {
+          el.enabled = !el.enabled;
+          renderLayers(); renderInspector(); drawFrame();
+          return;
+        }
+        state.selected = kind;
+        renderLayers(); renderInspector(); drawFrame();
+      });
+      list.appendChild(row);
+    });
+  }
+
+  // Inspector --------------------------------------------------------
+  function renderInspector() {
+    const kind = state.selected;
+    const el = state.elements[kind];
+    document.getElementById('inspLayerLabel').textContent = ELEMENT_NAMES[kind];
+
+    // Text field visibility (orb has no text)
+    document.getElementById('textFieldWrap').style.display = (kind === 'orb') ? 'none' : 'flex';
+    if (kind !== 'orb') {
+      document.getElementById('elText').value = el.text ?? '';
+    }
+
+    // Effect list
+    const isOrb = kind === 'orb';
+    const options = isOrb ? ORB_EFFECTS : TEXT_EFFECTS;
+    const select = document.getElementById('effectSelect');
+    select.innerHTML = '';
+    options.forEach(e => {
+      const o = document.createElement('option');
+      o.value = e;
+      o.textContent = EFFECTS[e]?.label ?? e;
+      if (e === el.effect) o.selected = true;
+      select.appendChild(o);
+    });
+
+    document.getElementById('startInput').value = el.start;
+    document.getElementById('durInput').value = el.duration;
+  }
+
+  // Wire inspector controls
+  document.getElementById('effectSelect').addEventListener('change', (e) => {
+    state.elements[state.selected].effect = e.target.value;
+    renderLayers();
+    drawFrame();
+  });
+  document.getElementById('startInput').addEventListener('input', (e) => {
+    const v = Math.max(0, parseFloat(e.target.value) || 0);
+    state.elements[state.selected].start = v;
+    drawFrame();
+  });
+  document.getElementById('durInput').addEventListener('input', (e) => {
+    const v = Math.max(0.2, parseFloat(e.target.value) || 0.2);
+    state.elements[state.selected].duration = v;
+    drawFrame();
+  });
+  document.getElementById('elText').addEventListener('input', (e) => {
+    if (state.selected === 'orb') return;
+    state.elements[state.selected].text = e.target.value;
+    drawFrame();
+  });
+
+  // Canvas click for hit-testing -------------------------------------
+  stage.addEventListener('click', (e) => {
+    if (state.recording) return;
+    const rect = stage.getBoundingClientRect();
+    const scaleX = stage.width / rect.width;
+    const scaleY = stage.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    // Priority order: text elements over orb, since text is on top
+    const priority = ['url', 'tagline', 'wordmark', 'orb'];
+    for (const k of priority) {
+      const b = state.layerBoxes[k];
+      if (!b) continue;
+      if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+        state.selected = k;
+        renderLayers(); renderInspector(); drawFrame();
+        return;
+      }
+    }
+  });
+
+  // Scrubber ---------------------------------------------------------
+  (function wireScrubber() {
+    const scrub = document.getElementById('scrubber');
+    let dragging = false;
+
+    function timeFromEvent(ev) {
+      const rect = scrub.getBoundingClientRect();
+      const x = clamp01((ev.clientX - rect.left) / rect.width);
+      return x * state.duration;
+    }
+
+    scrub.addEventListener('mousedown', (ev) => {
+      dragging = true;
+      pause();
+      state.time = timeFromEvent(ev);
+      drawFrame();
+    });
+    window.addEventListener('mousemove', (ev) => {
+      if (!dragging) return;
+      state.time = timeFromEvent(ev);
+      drawFrame();
+    });
+    window.addEventListener('mouseup', () => { dragging = false; });
+
+    // Touch
+    scrub.addEventListener('touchstart', (ev) => {
+      dragging = true;
+      pause();
+      state.time = timeFromEvent(ev.touches[0]);
+      drawFrame();
+    }, { passive: true });
+    window.addEventListener('touchmove', (ev) => {
+      if (!dragging) return;
+      state.time = timeFromEvent(ev.touches[0]);
+      drawFrame();
+    }, { passive: true });
+    window.addEventListener('touchend', () => { dragging = false; });
+  })();
+
+  // Play buttons -----------------------------------------------------
+  document.getElementById('btnPlay').addEventListener('click', togglePlay);
+  document.getElementById('btnOverlayPlay').addEventListener('click', togglePlay);
+  document.getElementById('btnPreview').addEventListener('click', () => {
+    state.time = 0;
+    play();
+  });
+  document.getElementById('btnRec').addEventListener('click', () => {
+    record().catch((err) => {
+      console.warn(err);
+      setStatus('Record failed — check console.', null);
+      state.recording = false;
+    });
+  });
+
+  // Overlay auto-hide during play -----------------------------------
+  const overlay = document.getElementById('playOverlay');
+  frame.addEventListener('mousemove', () => {
+    state.lastMoveAt = performance.now();
+    overlay.classList.remove('hidden');
+  });
+  frame.addEventListener('mouseleave', () => {
+    if (state.playing) overlay.classList.add('hidden');
+  });
+  setInterval(() => {
+    if (state.playing && performance.now() - state.lastMoveAt > 1200) {
+      overlay.classList.add('hidden');
+    }
+    if (!state.playing) overlay.classList.remove('hidden');
+  }, 400);
+
+  // Global segmented controls ----------------------------------------
+  document.getElementById('segTheme').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#segTheme button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    setTheme(b.dataset.theme);
+  });
+  document.getElementById('segAspect').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#segAspect button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    setAspect(b.dataset.aspect);
+  });
+  document.getElementById('segDur').addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.querySelectorAll('#segDur button').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    setDuration(Number(b.dataset.dur));
+  });
+
+  window.addEventListener('resize', () => setAspect(state.aspect));
+
+  // Keyboard: space toggles play, arrows scrub, tab cycles layers ----
+  window.addEventListener('keydown', (e) => {
+    if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); return; }
+    if (e.code === 'ArrowLeft') { pause(); state.time = Math.max(0, state.time - 0.1); drawFrame(); return; }
+    if (e.code === 'ArrowRight') { pause(); state.time = Math.min(state.duration, state.time + 0.1); drawFrame(); return; }
+    if (e.code === 'KeyR') { record(); return; }
+  });
+
+  // Boot -------------------------------------------------------------
+  applyPreset('signature');
+  setTheme('dark');
+  setAspect('16:9');
+  setDuration(5);
+</script>
