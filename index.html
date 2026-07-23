@@ -1551,13 +1551,14 @@
         { key: 'intensity', label: 'Intensity', type: 'range', min: 0.3, max: 1.4, step: 0.02 },
       ],
       apply(t01, p) {
-        const eased = easeInOutCubic(t01);
+        // Smooth ease-in-out so the motion never jerks in or out.
+        const eased = (1 - Math.cos(Math.PI * t01)) / 2;
         const dir = p.direction === 'reverse' ? 1 : -1;
-        // Start with the light on the opposite side (hlAngle = ±π) and
-        // sweep back to the resting position (hlAngle = 0) as t → 1.
-        // This reads as light shining across a glass sphere.
+        // hlLerp = interpolation between opposite (0) and default (1) position
+        // for the light source. Direction=reverse ramps 0→1 (opposite→default),
+        // direction=forward ramps 1→0 (default→opposite).
         return {
-          hlAngle: dir * (1 - eased) * Math.PI,
+          hlLerp: dir === 1 ? eased : 1 - eased,
           hlBoost: Math.sin(t01 * Math.PI) * (p.intensity ?? 0.85),
         };
       },
@@ -1627,21 +1628,39 @@
     return el;
   }
   function computeAnimState(el, t) {
-    const out = { hlAngle: 0, hlBoost: 0, dropShadow: 0, extraScale: 1, glowBoost: 0, waveAmp: 0, wavePhase: 0 };
+    // Defaults describe the "resting" look — hlLerp=1 means the light
+    // source sits at its default position (top-left). When no shine
+    // animation touches the orb, we render the resting frame.
+    const out = { hlLerp: 1, hlBoost: 0, dropShadow: 0, extraScale: 1, glowBoost: 0, waveAmp: 0, wavePhase: 0 };
+    let hlSet = false;
     for (const anim of (el.animations || [])) {
-      const localT = clamp01((t - anim.start) / anim.duration);
-      if (localT <= 0) continue;
+      // Clamp above 1 so that AFTER an animation ends we stay in the
+      // "end" state rather than snapping back to defaults.
+      const localT = Math.min(1, Math.max(0, (t - anim.start) / anim.duration));
+      if (t < anim.start) continue;
       const def = ANIMATIONS[anim.type];
       if (!def) continue;
       const d = def.apply(localT, { ...def.defaults, ...anim.params, duration: anim.duration });
-      // Additive merge for angles/booleans, multiplicative for scale.
-      if (d.hlAngle !== undefined)   out.hlAngle += d.hlAngle;
+      if (d.hlLerp !== undefined)   { out.hlLerp = d.hlLerp; hlSet = true; }
       if (d.hlBoost !== undefined)   out.hlBoost += d.hlBoost;
       if (d.dropShadow !== undefined) out.dropShadow = Math.max(out.dropShadow, d.dropShadow);
       if (d.extraScale !== undefined) out.extraScale *= d.extraScale;
       if (d.glowBoost !== undefined) out.glowBoost += d.glowBoost;
       if (d.waveAmp !== undefined)   out.waveAmp = Math.max(out.waveAmp, d.waveAmp);
       if (d.wavePhase !== undefined) out.wavePhase = d.wavePhase;
+    }
+    // Special-case: before ANY shine animation has begun, respect its
+    // start position (dir === reverse means start at opposite side).
+    // Scan for an upcoming shine to determine what to show BEFORE it
+    // starts, so the orb looks continuous rather than jumping in.
+    if (!hlSet) {
+      for (const anim of (el.animations || [])) {
+        if (anim.type !== 'shine') continue;
+        if (t >= anim.start) continue; // already handled by loop above
+        const def = ANIMATIONS[anim.type];
+        const d = def.apply(0, { ...def.defaults, ...anim.params });
+        if (d.hlLerp !== undefined) { out.hlLerp = d.hlLerp; hlSet = true; break; }
+      }
     }
     return out;
   }
@@ -1663,10 +1682,13 @@
 
   const PRESETS = [
     { id: 'signature', name: 'Signature', kicker: 'Default', elements: {
-      orb:      { effect: 'rise-breath', start: 0.4, duration: 1.2, enabled: true,
+      orb:      { effect: 'none', start: 0.0, duration: 0.1, enabled: true,
         animations: [
-          { id: 'seed-shine',  type: 'shine',       start: 1.9, duration: 1.6, params: { direction: 'reverse', intensity: 0.9 } },
-          { id: 'seed-shadow', type: 'shadow-drop', start: 3.5, duration: 0.9, params: { intensity: 0.55 } },
+          // Shine spans the whole video so the light continuously slides
+          // from the opposite side (t=0) to the resting position (t=end).
+          { id: 'seed-shine',  type: 'shine',       start: 0, duration: 5, params: { direction: 'reverse', intensity: 0.7 } },
+          // Shadow deepens over the second half so darker rim reads at end.
+          { id: 'seed-shadow', type: 'shadow-drop', start: 2, duration: 3, params: { intensity: 0.5 } },
         ]
       },
       wordmark: { effect: 'fade-up',     start: 1.3, duration: 1.1, enabled: true, text: 'TRAVIS' },
@@ -1755,6 +1777,9 @@
       const e = elements[k];
       if (!e.enabled) continue;
       m = Math.max(m, e.start + e.duration);
+      for (const a of (e.animations || [])) {
+        m = Math.max(m, a.start + a.duration);
+      }
     }
     return m || 1;
   }
@@ -1901,56 +1926,62 @@
       ctx.fillStyle = bg; ctx.fillRect(cx - orbR * 1.8, cy - orbR * 1.8, orbR * 3.6, orbR * 3.6);
     }
 
-    // The gradient origin rotates with anim.hlAngle so the whole sphere
-    // reads as if lit from a moving direction — mimicking light sweeping
-    // across a glass ball.
-    const cs = Math.cos(anim.hlAngle), sn = Math.sin(anim.hlAngle);
-    const litOffX = -0.35 * cs - -0.4 * sn;
-    const litOffY = -0.35 * sn + -0.4 * cs;
-    const body = ctx.createRadialGradient(cx + orbR * litOffX, cy + orbR * litOffY, 0, cx, cy, orbR);
+    // The light source slides in a straight line from the "opposite"
+    // position to the "default" (rest) position. hlLerp = 1 → rest.
+    // Everything anchored to the light (gradient origin, highlight
+    // speck, rim shadow origin) uses the same interpolated position
+    // so nothing about the orb rotates or spins.
+    const lp = anim.hlLerp;
+    // Default vectors (top-left light, bottom-right shadow).
+    const defLitX = -0.35, defLitY = -0.40;
+    const defShX  =  0.35, defShY  =  0.45;
+    const defHlX  = -0.32, defHlY  = -0.42;
+    // Interpolate from the mirrored ("opposite") point back to the rest
+    // point. When lp=0 → mirrored; lp=1 → rest.
+    const litX = -defLitX + (defLitX - (-defLitX)) * lp;
+    const litY = -defLitY + (defLitY - (-defLitY)) * lp;
+    const shX  = -defShX  + (defShX  - (-defShX))  * lp;
+    const shY  = -defShY  + (defShY  - (-defShY))  * lp;
+    const hlX  = -defHlX  + (defHlX  - (-defHlX))  * lp;
+    const hlY  = -defHlY  + (defHlY  - (-defHlY))  * lp;
+
+    const body = ctx.createRadialGradient(cx + orbR * litX, cy + orbR * litY, 0, cx, cy, orbR);
     T.orbBody.forEach(([stop, color]) => body.addColorStop(stop, color));
     ctx.fillStyle = body; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
 
-    // Rim shadow — sits opposite the light so it tracks the shine.
-    // shadow-drop deepens it in a directional way.
+    // Rim shadow — origin at the interpolated shadow point.
     ctx.globalCompositeOperation = 'multiply';
-    const shOffX = 0.35 * cs - 0.45 * sn;
-    const shOffY = 0.35 * sn + 0.45 * cs;
-    const shX = cx + orbR * shOffX, shY = cy + orbR * shOffY;
-    const rim = ctx.createRadialGradient(shX, shY, orbR * 0.4, shX, shY, orbR);
+    const shPX = cx + orbR * shX, shPY = cy + orbR * shY;
+    const rim = ctx.createRadialGradient(shPX, shPY, orbR * 0.4, shPX, shPY, orbR);
     rim.addColorStop(0, 'rgba(255,255,255,1)'); rim.addColorStop(1, T.orbRimDark);
     ctx.fillStyle = rim; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
 
     if (anim.dropShadow > 0) {
       const dsA = anim.dropShadow * 0.85;
-      const ds = ctx.createRadialGradient(shX, shY, orbR * 0.25, shX, shY, orbR * 1.15);
+      const ds = ctx.createRadialGradient(shPX, shPY, orbR * 0.25, shPX, shPY, orbR * 1.15);
       ds.addColorStop(0, `rgba(10, 6, 20, ${dsA})`);
       ds.addColorStop(1, 'rgba(10, 6, 20, 0)');
       ctx.fillStyle = ds; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
     }
     ctx.globalCompositeOperation = 'source-over';
 
-    // Highlight speck — tracks the light source.
-    const hlBaseX = -0.32, hlBaseY = -0.42;
-    const hlX = hlBaseX * cs - hlBaseY * sn;
-    const hlY = hlBaseX * sn + hlBaseY * cs;
-    const hlAlpha = Math.min(1, 0.55 + anim.hlBoost * 0.5);
+    // Highlight speck — stationary orientation (no ellipse rotation),
+    // only its position lerps.
+    const hlAlpha = Math.min(1, 0.55 + anim.hlBoost * 0.35);
     ctx.beginPath();
     ctx.fillStyle = colorWithAlpha(T.orbHighlight, hlAlpha);
-    ctx.ellipse(cx + orbR * hlX, cy + orbR * hlY, orbR * 0.18, orbR * 0.12, -0.35 + anim.hlAngle, 0, Math.PI * 2);
+    ctx.ellipse(cx + orbR * hlX, cy + orbR * hlY, orbR * 0.18, orbR * 0.12, -0.35, 0, Math.PI * 2);
     ctx.fill();
 
-    // Shine sweep — extra bright arc gliding across the sphere during
-    // the animation window. Clipped to the orb so it stays contained.
-    if (anim.hlBoost > 0.03) {
+    // Optional extra brightness at the peak of the sweep — a soft
+    // wet-glass sheen that follows the light.
+    if (anim.hlBoost > 0.05) {
       ctx.save();
       ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.clip();
-      const sweepPX = cx + Math.cos(anim.hlAngle - Math.PI / 2) * orbR * 0.55;
-      const sweepPY = cy + Math.sin(anim.hlAngle - Math.PI / 2) * orbR * 0.55;
-      const sg = ctx.createRadialGradient(sweepPX, sweepPY, 0, sweepPX, sweepPY, orbR * 1.1);
-      const boost = Math.min(0.55, anim.hlBoost * 0.6);
+      const sg = ctx.createRadialGradient(cx + orbR * hlX * 0.7, cy + orbR * hlY * 0.7, 0, cx + orbR * hlX * 0.7, cy + orbR * hlY * 0.7, orbR * 1.05);
+      const boost = Math.min(0.5, anim.hlBoost * 0.55);
       sg.addColorStop(0, `rgba(255, 250, 235, ${boost})`);
-      sg.addColorStop(0.35, `rgba(255, 240, 220, ${boost * 0.4})`);
+      sg.addColorStop(0.4, `rgba(255, 240, 220, ${boost * 0.3})`);
       sg.addColorStop(1, 'rgba(255, 240, 220, 0)');
       ctx.fillStyle = sg;
       ctx.fillRect(cx - orbR * 2, cy - orbR * 2, orbR * 4, orbR * 4);
