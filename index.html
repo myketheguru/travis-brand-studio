@@ -231,11 +231,13 @@
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
     pointer-events: none;
-    opacity: 1;
+    opacity: 0;
     transition: opacity 220ms var(--curve-snap);
   }
-  .viewer-frame:hover .play-overlay,
-  .viewer-frame:not(:hover) .play-overlay { opacity: 1; }
+  .viewer-frame:hover .play-overlay { opacity: 1; }
+  @media (hover: none), (max-width: 900px) {
+    .play-overlay { display: none; }
+  }
   .play-overlay button {
     all: unset;
     width: 60px; height: 60px;
@@ -837,6 +839,108 @@
     border-radius: 10px;
   }
 
+  /* Animations section */
+  .anim-section { display: flex; flex-direction: column; gap: 10px; }
+  .anim-section .sec-h {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+  }
+  .anim-section .sec-h .sec-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .anim-add-wrap { position: relative; }
+  .anim-add {
+    all: unset;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lav);
+    background: var(--lav-soft);
+    padding: 6px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    border: 1px solid rgba(189, 158, 255, 0.28);
+  }
+  .anim-add:hover { background: rgba(189, 158, 255, 0.22); }
+  .anim-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--elevated-2);
+    border: 1px solid var(--border-2);
+    border-radius: 10px;
+    padding: 4px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 180px;
+    z-index: 4;
+    box-shadow: 0 10px 24px -8px rgba(0,0,0,0.6);
+  }
+  .anim-menu.on { display: flex; }
+  .anim-menu button {
+    all: unset;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    color: var(--text);
+    cursor: pointer;
+    border-radius: 7px;
+  }
+  .anim-menu button:hover { background: rgba(189, 158, 255, 0.10); color: var(--lav); }
+
+  .anim-list { display: flex; flex-direction: column; gap: 6px; }
+  .anim-row {
+    background: var(--elevated-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: border-color 160ms var(--curve-snap);
+  }
+  .anim-row.on { border-color: rgba(189, 158, 255, 0.40); background: rgba(189, 158, 255, 0.06); }
+  .anim-row-head {
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer;
+  }
+  .anim-row-head .name { flex: 1; font-size: 12.5px; color: var(--text); font-weight: 500; }
+  .anim-row-head .timing {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .anim-row-head .remove {
+    all: unset;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-3);
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .anim-row-head .remove:hover { color: rgb(248, 113, 113); background: rgba(248, 113, 113, 0.1); }
+  .anim-row-body { display: none; flex-direction: column; gap: 8px; }
+  .anim-row.on .anim-row-body { display: flex; }
+  .anim-empty {
+    padding: 10px 12px;
+    color: var(--text-3);
+    font-size: 12px;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+  }
+
   /* Panel tab bar (desktop sidebars) */
   .panel-tabs {
     display: flex;
@@ -1204,6 +1308,17 @@
               <div class="flabel">Glow · <span id="styleGlowVal">1.00x</span></div>
               <div class="slider-row"><input id="styleGlow" type="range" min="0" max="2.5" step="0.02" value="1" /></div>
             </div>
+
+            <div class="anim-section" id="animSection">
+              <div class="sec-h">
+                <span class="sec-title">Animations</span>
+                <div class="anim-add-wrap">
+                  <button class="anim-add" id="animAdd">+ Add</button>
+                  <div class="anim-menu" id="animMenu"></div>
+                </div>
+              </div>
+              <div class="anim-list" id="animList"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1418,13 +1533,142 @@
   const TEXT_EFFECTS = ['none','fade-up','fade-in','slide-left','slide-right','scale-in','typewriter','split-in','split-up'];
   const ORB_EFFECTS  = ['none','rise-breath','glow-in','pulse','fade-in','scale-in'];
 
+  const easeInOutCubic = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
+  // ================================================================
+  // ANIMATIONS — layered effects that run over their own timeline on
+  // top of the base entry effect. Each element carries an animations
+  // array; drawing merges every active animation's deltas.
+  // ================================================================
+  const ANIMATIONS = {
+    shine: {
+      label: 'Shine sweep',
+      applicableTo: ['orb'],
+      defaultDuration: 1.8,
+      defaults: { direction: 'reverse', intensity: 0.85 },
+      params: [
+        { key: 'direction', label: 'Direction', type: 'segmented', options: [['reverse','← ← ←'], ['forward','→ → →']] },
+        { key: 'intensity', label: 'Intensity', type: 'range', min: 0.3, max: 1.4, step: 0.02 },
+      ],
+      apply(t01, p) {
+        const eased = easeInOutCubic(t01);
+        const dir = p.direction === 'reverse' ? 1 : -1;
+        // Start with the light on the opposite side (hlAngle = ±π) and
+        // sweep back to the resting position (hlAngle = 0) as t → 1.
+        // This reads as light shining across a glass sphere.
+        return {
+          hlAngle: dir * (1 - eased) * Math.PI,
+          hlBoost: Math.sin(t01 * Math.PI) * (p.intensity ?? 0.85),
+        };
+      },
+    },
+    'shadow-drop': {
+      label: 'Shadow drop',
+      applicableTo: ['orb'],
+      defaultDuration: 0.9,
+      defaults: { intensity: 0.55 },
+      params: [
+        { key: 'intensity', label: 'Depth', type: 'range', min: 0.1, max: 1.0, step: 0.02 },
+      ],
+      apply(t01, p) {
+        return { dropShadow: easeOutCubic(t01) * (p.intensity ?? 0.55) };
+      },
+    },
+    breathe: {
+      label: 'Breathe',
+      applicableTo: ['orb'],
+      defaultDuration: 2.0,
+      defaults: { depth: 0.04, speed: 1.2 },
+      params: [
+        { key: 'depth', label: 'Depth', type: 'range', min: 0.01, max: 0.10, step: 0.005 },
+        { key: 'speed', label: 'Speed', type: 'range', min: 0.3, max: 3.0, step: 0.1 },
+      ],
+      apply(t01, p) {
+        const holdT = t01 * (p.duration || 1);
+        return { extraScale: 1 + Math.sin(t01 * Math.PI * 2 * (p.speed ?? 1)) * (p.depth ?? 0.04) };
+      },
+    },
+    'glow-pulse': {
+      label: 'Glow pulse',
+      applicableTo: ['orb','wordmark','tagline','url'],
+      defaultDuration: 1.2,
+      defaults: { intensity: 0.6, speed: 1.5 },
+      params: [
+        { key: 'intensity', label: 'Intensity', type: 'range', min: 0.1, max: 1.0, step: 0.05 },
+        { key: 'speed', label: 'Speed', type: 'range', min: 0.4, max: 3.0, step: 0.1 },
+      ],
+      apply(t01, p) {
+        const pulse = (Math.sin(t01 * Math.PI * 2 * (p.speed ?? 1.5)) + 1) * 0.5;
+        return { glowBoost: pulse * (p.intensity ?? 0.6) };
+      },
+    },
+    wave: {
+      label: 'Wave',
+      applicableTo: ['wordmark','tagline','url'],
+      defaultDuration: 1.5,
+      defaults: { amplitude: 0.06, speed: 1.0 },
+      params: [
+        { key: 'amplitude', label: 'Amplitude', type: 'range', min: 0.02, max: 0.20, step: 0.01 },
+        { key: 'speed', label: 'Speed', type: 'range', min: 0.4, max: 3.0, step: 0.1 },
+      ],
+      apply(t01, p) {
+        return { waveAmp: (p.amplitude ?? 0.06), wavePhase: t01 * Math.PI * 2 * (p.speed ?? 1) };
+      },
+    },
+  };
+
+  function availableAnimsFor(kind) {
+    return Object.entries(ANIMATIONS).filter(([_, def]) =>
+      def.applicableTo.includes(kind) || def.applicableTo.includes('all')
+    );
+  }
+  function ensureAnimations(el) {
+    if (!Array.isArray(el.animations)) el.animations = [];
+    return el;
+  }
+  function computeAnimState(el, t) {
+    const out = { hlAngle: 0, hlBoost: 0, dropShadow: 0, extraScale: 1, glowBoost: 0, waveAmp: 0, wavePhase: 0 };
+    for (const anim of (el.animations || [])) {
+      const localT = clamp01((t - anim.start) / anim.duration);
+      if (localT <= 0) continue;
+      const def = ANIMATIONS[anim.type];
+      if (!def) continue;
+      const d = def.apply(localT, { ...def.defaults, ...anim.params, duration: anim.duration });
+      // Additive merge for angles/booleans, multiplicative for scale.
+      if (d.hlAngle !== undefined)   out.hlAngle += d.hlAngle;
+      if (d.hlBoost !== undefined)   out.hlBoost += d.hlBoost;
+      if (d.dropShadow !== undefined) out.dropShadow = Math.max(out.dropShadow, d.dropShadow);
+      if (d.extraScale !== undefined) out.extraScale *= d.extraScale;
+      if (d.glowBoost !== undefined) out.glowBoost += d.glowBoost;
+      if (d.waveAmp !== undefined)   out.waveAmp = Math.max(out.waveAmp, d.waveAmp);
+      if (d.wavePhase !== undefined) out.wavePhase = d.wavePhase;
+    }
+    return out;
+  }
+  function newAnimation(type) {
+    const def = ANIMATIONS[type];
+    if (!def) return null;
+    return {
+      id: 'anim_' + Math.floor(performance.now() * 1000).toString(36) + '_' + Math.floor(Math.random() * 1e6).toString(36),
+      type,
+      start: Math.min(state.duration - 0.5, Math.max(0, state.time || 1)),
+      duration: def.defaultDuration || 1.0,
+      params: { ...def.defaults },
+    };
+  }
+
   function defaultOverrides() {
     return { color: null, sizeScale: 1, xOffsetPct: 0, yOffsetPct: 0, tracking: 1, glow: 1 };
   }
 
   const PRESETS = [
     { id: 'signature', name: 'Signature', kicker: 'Default', elements: {
-      orb:      { effect: 'rise-breath', start: 0.4, duration: 1.2, enabled: true },
+      orb:      { effect: 'rise-breath', start: 0.4, duration: 1.2, enabled: true,
+        animations: [
+          { id: 'seed-shine',  type: 'shine',       start: 1.9, duration: 1.6, params: { direction: 'reverse', intensity: 0.9 } },
+          { id: 'seed-shadow', type: 'shadow-drop', start: 3.5, duration: 0.9, params: { intensity: 0.55 } },
+        ]
+      },
       wordmark: { effect: 'fade-up',     start: 1.3, duration: 1.1, enabled: true, text: 'TRAVIS' },
       tagline:  { effect: 'fade-up',     start: 2.1, duration: 0.9, enabled: true, text: 'The agent that runs across your work' },
       url:      { effect: 'fade-up',     start: 2.6, duration: 1.0, enabled: true, text: 'usetravis.com' },
@@ -1525,10 +1769,17 @@
     if (!p) return;
     state.presetId = id;
     const clone = JSON.parse(JSON.stringify(p.elements));
-    for (const k of ELEMENT_KINDS) ensureStyle(clone[k]);
+    for (const k of ELEMENT_KINDS) { ensureStyle(clone[k]); ensureAnimations(clone[k]); }
     const natural = naturalDurationOf(clone);
     const factor = state.duration / natural;
     scaleTimings(clone, factor);
+    // Scale animation timings too
+    for (const k of ELEMENT_KINDS) {
+      for (const a of clone[k].animations) {
+        a.start *= factor;
+        a.duration *= factor;
+      }
+    }
     state.elements = clone;
     state.time = 0;
     renderPresets(); renderLayers(); renderInspector(); renderTimeline(); drawFrame();
@@ -1538,6 +1789,12 @@
     if (state.elements) {
       const factor = d / state.duration;
       scaleTimings(state.elements, factor);
+      for (const k of ELEMENT_KINDS) {
+        for (const a of (state.elements[k].animations || [])) {
+          a.start *= factor;
+          a.duration *= factor;
+        }
+      }
     }
     state.duration = d;
     if (state.time > d) state.time = d;
@@ -1623,30 +1880,83 @@
       cy = targetCY + (spec.dy ?? 0) * (shortSide / 1080);
       alpha = spec.alpha ?? 1;
     }
+    // Per-element animations (shine / shadow-drop / breathe / glow-pulse).
+    const anim = computeAnimState(el, t);
+    orbR *= anim.extraScale;
+
     if (orbR < 2) return;
     ctx.save();
     ctx.globalAlpha = alpha;
-    if (glowMul > 0) {
-      const glowR = orbR * 3.2 * glowMul;
+
+    const totalGlow = glowMul * (1 + anim.glowBoost);
+    if (totalGlow > 0) {
+      const glowR = orbR * 3.2 * totalGlow;
       const glow = ctx.createRadialGradient(cx, cy, orbR * 0.4, cx, cy, glowR);
       const oc = s.color ? colorWithAlpha(s.color, 0.42) : T.orbOuter1;
       const om = s.color ? colorWithAlpha(s.color, 0.16) : T.orbOuter2;
       glow.addColorStop(0, oc); glow.addColorStop(0.35, om); glow.addColorStop(1, colorWithAlpha(s.color ?? '#7c5cff', 0));
       ctx.fillStyle = glow; ctx.fillRect(cx - glowR, cy - glowR, glowR * 2, glowR * 2);
-      const bg = ctx.createRadialGradient(cx + orbR * 0.15, cy + orbR * 0.25, 0, cx + orbR * 0.15, cy + orbR * 0.25, orbR * 1.6 * glowMul);
+      const bg = ctx.createRadialGradient(cx + orbR * 0.15, cy + orbR * 0.25, 0, cx + orbR * 0.15, cy + orbR * 0.25, orbR * 1.6 * totalGlow);
       bg.addColorStop(0, T.orbBronze); bg.addColorStop(1, 'rgba(210,155,100,0)');
       ctx.fillStyle = bg; ctx.fillRect(cx - orbR * 1.8, cy - orbR * 1.8, orbR * 3.6, orbR * 3.6);
     }
-    const body = ctx.createRadialGradient(cx - orbR * 0.35, cy - orbR * 0.4, 0, cx, cy, orbR);
+
+    // The gradient origin rotates with anim.hlAngle so the whole sphere
+    // reads as if lit from a moving direction — mimicking light sweeping
+    // across a glass ball.
+    const cs = Math.cos(anim.hlAngle), sn = Math.sin(anim.hlAngle);
+    const litOffX = -0.35 * cs - -0.4 * sn;
+    const litOffY = -0.35 * sn + -0.4 * cs;
+    const body = ctx.createRadialGradient(cx + orbR * litOffX, cy + orbR * litOffY, 0, cx, cy, orbR);
     T.orbBody.forEach(([stop, color]) => body.addColorStop(stop, color));
     ctx.fillStyle = body; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
+
+    // Rim shadow — sits opposite the light so it tracks the shine.
+    // shadow-drop deepens it in a directional way.
     ctx.globalCompositeOperation = 'multiply';
-    const rim = ctx.createRadialGradient(cx + orbR * 0.35, cy + orbR * 0.45, orbR * 0.4, cx + orbR * 0.35, cy + orbR * 0.45, orbR);
+    const shOffX = 0.35 * cs - 0.45 * sn;
+    const shOffY = 0.35 * sn + 0.45 * cs;
+    const shX = cx + orbR * shOffX, shY = cy + orbR * shOffY;
+    const rim = ctx.createRadialGradient(shX, shY, orbR * 0.4, shX, shY, orbR);
     rim.addColorStop(0, 'rgba(255,255,255,1)'); rim.addColorStop(1, T.orbRimDark);
     ctx.fillStyle = rim; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
+
+    if (anim.dropShadow > 0) {
+      const dsA = anim.dropShadow * 0.85;
+      const ds = ctx.createRadialGradient(shX, shY, orbR * 0.25, shX, shY, orbR * 1.15);
+      ds.addColorStop(0, `rgba(10, 6, 20, ${dsA})`);
+      ds.addColorStop(1, 'rgba(10, 6, 20, 0)');
+      ctx.fillStyle = ds; ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.fill();
+    }
     ctx.globalCompositeOperation = 'source-over';
-    ctx.beginPath(); ctx.fillStyle = T.orbHighlight;
-    ctx.ellipse(cx - orbR * 0.32, cy - orbR * 0.42, orbR * 0.18, orbR * 0.12, -0.35, 0, Math.PI * 2); ctx.fill();
+
+    // Highlight speck — tracks the light source.
+    const hlBaseX = -0.32, hlBaseY = -0.42;
+    const hlX = hlBaseX * cs - hlBaseY * sn;
+    const hlY = hlBaseX * sn + hlBaseY * cs;
+    const hlAlpha = Math.min(1, 0.55 + anim.hlBoost * 0.5);
+    ctx.beginPath();
+    ctx.fillStyle = colorWithAlpha(T.orbHighlight, hlAlpha);
+    ctx.ellipse(cx + orbR * hlX, cy + orbR * hlY, orbR * 0.18, orbR * 0.12, -0.35 + anim.hlAngle, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Shine sweep — extra bright arc gliding across the sphere during
+    // the animation window. Clipped to the orb so it stays contained.
+    if (anim.hlBoost > 0.03) {
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, orbR, 0, Math.PI * 2); ctx.clip();
+      const sweepPX = cx + Math.cos(anim.hlAngle - Math.PI / 2) * orbR * 0.55;
+      const sweepPY = cy + Math.sin(anim.hlAngle - Math.PI / 2) * orbR * 0.55;
+      const sg = ctx.createRadialGradient(sweepPX, sweepPY, 0, sweepPX, sweepPY, orbR * 1.1);
+      const boost = Math.min(0.55, anim.hlBoost * 0.6);
+      sg.addColorStop(0, `rgba(255, 250, 235, ${boost})`);
+      sg.addColorStop(0.35, `rgba(255, 240, 220, ${boost * 0.4})`);
+      sg.addColorStop(1, 'rgba(255, 240, 220, 0)');
+      ctx.fillStyle = sg;
+      ctx.fillRect(cx - orbR * 2, cy - orbR * 2, orbR * 4, orbR * 4);
+      ctx.restore();
+    }
+
     ctx.restore();
     state.layerBoxes.orb = { x: cx - orbR, y: cy - orbR, w: orbR * 2, h: orbR * 2 };
   }
@@ -2085,7 +2395,162 @@
     document.getElementById('glowWrap').style.display = (kind === 'orb') ? 'flex' : 'none';
     document.getElementById('styleGlow').value = s.glow;
     document.getElementById('styleGlowVal').textContent = s.glow.toFixed(2) + 'x';
+
+    renderAnimations();
   }
+
+  // ---------- Animation inspector ----------
+  //
+  // The user can stack multiple animations on any element. Each row
+  // collapses to (name · start–end · remove) and expands to reveal the
+  // start/duration inputs plus the animation-specific parameter
+  // controls (segmented / range / etc.) declared in the ANIMATIONS
+  // registry.
+  let animSelectedId = null;
+  function renderAnimations() {
+    const kind = state.selected;
+    if (!kind) return;
+    const el = state.elements[kind];
+    ensureAnimations(el);
+    const list = document.getElementById('animList');
+    list.innerHTML = '';
+    if (el.animations.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'anim-empty';
+      empty.textContent = 'No animations yet · tap + Add';
+      list.appendChild(empty);
+      return;
+    }
+    el.animations.forEach(anim => {
+      const def = ANIMATIONS[anim.type];
+      if (!def) return;
+      const row = document.createElement('div');
+      row.className = 'anim-row' + (anim.id === animSelectedId ? ' on' : '');
+      const head = document.createElement('div');
+      head.className = 'anim-row-head';
+      head.innerHTML = `
+        <div class="name">${def.label}</div>
+        <div class="timing">${anim.start.toFixed(1)}s – ${(anim.start + anim.duration).toFixed(1)}s</div>
+        <button class="remove" title="Remove">×</button>
+      `;
+      head.addEventListener('click', (e) => {
+        if (e.target.closest('.remove')) {
+          el.animations = el.animations.filter(a => a.id !== anim.id);
+          if (animSelectedId === anim.id) animSelectedId = null;
+          renderAnimations(); drawFrame();
+          return;
+        }
+        animSelectedId = (animSelectedId === anim.id) ? null : anim.id;
+        renderAnimations();
+      });
+      row.appendChild(head);
+
+      const body = document.createElement('div');
+      body.className = 'anim-row-body';
+
+      // Start / Duration row
+      const timing = document.createElement('div');
+      timing.className = 'field-row';
+      timing.innerHTML = `
+        <div class="field"><div class="flabel">Start (s)</div><input type="number" class="num-input" data-k="start" min="0" max="20" step="0.1" /></div>
+        <div class="field"><div class="flabel">Duration (s)</div><input type="number" class="num-input" data-k="duration" min="0.1" max="12" step="0.1" /></div>
+      `;
+      timing.querySelector('[data-k="start"]').value = anim.start.toFixed(2);
+      timing.querySelector('[data-k="duration"]').value = anim.duration.toFixed(2);
+      timing.querySelector('[data-k="start"]').addEventListener('input', (ev) => {
+        anim.start = Math.max(0, parseFloat(ev.target.value) || 0);
+        head.querySelector('.timing').textContent = `${anim.start.toFixed(1)}s – ${(anim.start + anim.duration).toFixed(1)}s`;
+        drawFrame();
+      });
+      timing.querySelector('[data-k="duration"]').addEventListener('input', (ev) => {
+        anim.duration = Math.max(0.1, parseFloat(ev.target.value) || 0.1);
+        head.querySelector('.timing').textContent = `${anim.start.toFixed(1)}s – ${(anim.start + anim.duration).toFixed(1)}s`;
+        drawFrame();
+      });
+      body.appendChild(timing);
+
+      // Params
+      (def.params || []).forEach(p => {
+        const f = document.createElement('div');
+        f.className = 'field';
+        const currentVal = anim.params?.[p.key] ?? def.defaults[p.key];
+        if (p.type === 'range') {
+          f.innerHTML = `
+            <div class="flabel">${p.label} · <span class="val">${Number(currentVal).toFixed(2)}</span></div>
+            <div class="slider-row"><input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${currentVal}" /></div>
+          `;
+          const input = f.querySelector('input');
+          const val = f.querySelector('.val');
+          input.addEventListener('input', (ev) => {
+            const v = parseFloat(ev.target.value);
+            anim.params = { ...anim.params, [p.key]: v };
+            val.textContent = v.toFixed(2);
+            drawFrame();
+          });
+        } else if (p.type === 'segmented') {
+          const optionsHTML = p.options.map(([val, lbl]) =>
+            `<button data-v="${val}" class="${currentVal === val ? 'on' : ''}">${lbl}</button>`
+          ).join('');
+          f.innerHTML = `
+            <div class="flabel">${p.label}</div>
+            <div class="segmented">${optionsHTML}</div>
+          `;
+          f.querySelector('.segmented').addEventListener('click', (ev) => {
+            const b = ev.target.closest('button'); if (!b) return;
+            f.querySelectorAll('.segmented button').forEach(x => x.classList.remove('on'));
+            b.classList.add('on');
+            anim.params = { ...anim.params, [p.key]: b.dataset.v };
+            drawFrame();
+          });
+        }
+        body.appendChild(f);
+      });
+
+      row.appendChild(body);
+      list.appendChild(row);
+    });
+  }
+
+  // Add-animation menu
+  function toggleAnimMenu(open) {
+    const menu = document.getElementById('animMenu');
+    if (!menu) return;
+    if (open === undefined) menu.classList.toggle('on');
+    else menu.classList.toggle('on', open);
+    if (menu.classList.contains('on')) populateAnimMenu();
+  }
+  function populateAnimMenu() {
+    const menu = document.getElementById('animMenu');
+    const kind = state.selected;
+    if (!kind) return;
+    menu.innerHTML = '';
+    availableAnimsFor(kind).forEach(([type, def]) => {
+      const b = document.createElement('button');
+      b.textContent = def.label;
+      b.addEventListener('click', () => {
+        const el = state.elements[kind];
+        ensureAnimations(el);
+        const anim = newAnimation(type);
+        if (!anim) return;
+        el.animations.push(anim);
+        animSelectedId = anim.id;
+        toggleAnimMenu(false);
+        renderAnimations();
+        drawFrame();
+      });
+      menu.appendChild(b);
+    });
+    if (menu.children.length === 0) {
+      menu.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--text-3);">No animations available</div>';
+    }
+  }
+  document.getElementById('animAdd').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleAnimMenu();
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.anim-add-wrap')) toggleAnimMenu(false);
+  });
   function rgbaToHex(color) {
     if (!color) return '#ffffff';
     color = color.trim();
